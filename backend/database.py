@@ -6,20 +6,15 @@ import os
 # Cargar variables del archivo .env
 load_dotenv()
 
-# Obtener la URL de la base de datos
+# Obtener la URL de conexión desde el archivo .env
+# Ejemplo: DATABASE_URL=mysql+pymysql://root:1234@localhost:3306/mi_proyecto
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Configurar argumentos de conexión (necesario para SQLite)
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-
-# Crear el engine
 engine = create_engine(
     DATABASE_URL,
-    echo=False,
-    future=True,
-    connect_args=connect_args
+    echo=False,      # Cambia a True si quieres ver las consultas SQL en consola
+    future=True
 )
 
-# Crear sesión
+# Crear la sesión
 SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
-
