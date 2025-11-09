@@ -1,12 +1,24 @@
 from typing import Union
-
 from fastapi import FastAPI
-
-from database import Base, engine
-
 from models import Registro
+from .database import engine,base,get_db
 
-app = FastAPI()
+
+
+
+base.metadata.create_all(bin=engine)
+
+app = FastAPI(title="Registro de clientes",description="api para registro de personas")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["*"],
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers =["*"],
+)
+
+@app.post("/api/registro", response_model=schemas.Registroout)
 
 
 @app.get("/")

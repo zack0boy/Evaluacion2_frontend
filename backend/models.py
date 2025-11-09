@@ -13,9 +13,9 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from database import Base
 
+class Registro(Base):
 
-# Cliente
-class Cliente(Base):
+    #cliente
     __tablename__ = "cliente"
 
     id_cliente = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -34,9 +34,6 @@ class Cliente(Base):
 
 
 # Medidor
-class Medidor(Base):
-    __tablename__ = "medidor"
-
     id_medidor = Column(Integer, primary_key=True, index=True, autoincrement=True)
     codigo_medidor = Column(String(100), unique=True, nullable=False)
     id_cliente = Column(Integer, ForeignKey("cliente.id_cliente"), nullable=False)
@@ -51,8 +48,6 @@ class Medidor(Base):
 
 
 # Lectura de consumo
-class LecturaConsumo(Base):
-    __tablename__ = "lectura_consumo"
 
     id_lectura = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_medidor = Column(Integer, ForeignKey("medidor.id_medidor"), nullable=False)
@@ -72,9 +67,6 @@ class LecturaConsumo(Base):
 
 
 # Boleta
-class Boleta(Base):
-    __tablename__ = "boleta"
-
     id_boleta = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_cliente = Column(Integer, ForeignKey("cliente.id_cliente"), nullable=False)
     anio = Column(Integer, nullable=False)
