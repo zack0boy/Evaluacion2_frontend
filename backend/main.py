@@ -148,3 +148,79 @@ def listar_medidores_cliente(cliente_id: int, db: Session = Depends(get_db)):
     Listar todos los medidores de un cliente específico
     """
     return crud_medidores.get_medidores_por_cliente(db, cliente_id)
+
+# =======================
+# LECTURAS (crear/listar por medidor/mes)
+# =======================
+
+@app.post("/api/lecturas/", response_model=schemas.LecturaConsumoOut, tags=["Lecturas"])
+def crear_lectura(lectura: schemas.LecturaConsumoCreate, db: Session = Depends(get_db)):
+    """
+    Crear una nueva lectura de consumo
+    """
+    try:
+        return crud_lecturas.create_lectura(db, lectura)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/lecturas/medidor/{medidor_id}", response_model=List[schemas.LecturaConsumoOut], tags=["Lecturas"])
+def listar_lecturas_medidor(medidor_id: int, db: Session = Depends(get_db)):
+    """
+    Listar lecturas por medidor
+    """
+    return crud_lecturas.get_lecturas_por_medidor(db, medidor_id)
+
+# =======================
+# BOLETAS (generar/listar por cliente/mes)
+# =======================
+
+@app.post("/api/boletas/", response_model=schemas.BoletaOut, tags=["Boletas"])
+def crear_boleta(boleta: schemas.BoletaCreate, db: Session = Depends(get_db)):
+    """
+    Generar una nueva boleta
+    """
+    try:
+        return crud_boletas.create_boleta(db, boleta)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/boletas/cliente/{cliente_id}", response_model=List[schemas.BoletaOut], tags=["Boletas"])
+def listar_boletas_cliente(cliente_id: int, db: Session = Depends(get_db)):
+    """
+    Listar boletas por cliente
+    """
+    return crud_boletas.get_boletas_por_cliente(db, cliente_id)
+
+@app.get("/api/boletas/mes/{anio}/{mes}", response_model=List[schemas.BoletaOut], tags=["Boletas"])
+def listar_boletas_mes(anio: int, mes: int, db: Session = Depends(get_db)):
+    """
+    Listar boletas por mes y año
+    """
+    return crud_boletas.get_boletas_por_mes(db, anio, mes)
+
+# =======================
+# CORREO
+# =======================
+
+@app.post("/correo/boleta/{boleta_id}", tags=["Correo"])
+def enviar_boleta_por_correo(boleta_id: int, correo: schemas.CorreoRequest, db: Session = Depends(get_db)):
+    """
+    Enviar boleta por correo electrónico
+    """
+    try:
+        # Usar la versión simulada para desarrollo
+        # Para producción, usar: crud_correo.enviar_boleta_por_correo
+        success = crud_correo.enviar_boleta_por_correo_simulado(db, boleta_id, correo)
+        
+        if success:
+            return {
+                "message": f"Boleta {boleta_id} enviada exitosamente a {correo.email_destino}",
+                "enviado": True
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Error al enviar el correo")
+            
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al enviar correo: {str(e)}")
