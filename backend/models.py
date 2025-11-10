@@ -26,7 +26,7 @@ class Cliente(Base):
     __tablename__ = "clientes"
 
     id_cliente = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    rut = Column(String(12), unique=True, nullable=False)  # Formato chileno XX.XXX.XXX-X
+    rut = Column(String(12), unique=True, nullable=False)
     nombre_razon = Column(String(100), nullable=False)
     email_contacto = Column(String(100), nullable=False)
     telefono = Column(String(20))

@@ -2,28 +2,41 @@ from sqlalchemy.orm import Session
 from .. import models, schemas
 
 def create_lectura(db: Session, data: schemas.LecturaConsumoCreate) -> models.LecturaConsumo:
+    # Verificar si ya existe lectura para ese mes/año
+    existing = db.query(models.LecturaConsumo).filter(
+        models.LecturaConsumo.id_medidor == data.id_medidor,
+        models.LecturaConsumo.anio == data.anio,
+        models.LecturaConsumo.mes == data.mes
+    ).first()
+    
+    if existing:
+        raise ValueError("Ya existe una lectura para este medidor en el mes y año especificados")
+    
+    # Calcular consumo (buscar lectura anterior)
+    lectura_anterior = db.query(models.LecturaConsumo).filter(
+        models.LecturaConsumo.id_medidor == data.id_medidor
+    ).order_by(models.LecturaConsumo.anio.desc(), models.LecturaConsumo.mes.desc()).first()
+    
+    consumo_kwh = data.lectura_kwh
+    if lectura_anterior:
+        consumo_kwh = data.lectura_kwh - lectura_anterior.lectura_kwh
+        if consumo_kwh < 0:
+            raise ValueError("La lectura actual no puede ser menor que la anterior")
+    
     obj = models.LecturaConsumo(
-        id_medidor=data.id_medidor,
-        anio=data.anio,
-        mes=data.mes,
-        lectura_kwh=data.lectura_kwh,
-        observacion=data.observacion
+        **data.dict(),
+        consumo_kwh=consumo_kwh
     )
+    
     db.add(obj)
     db.commit()
     db.refresh(obj)
     return obj
 
+def get_lecturas_por_medidor(db: Session, medidor_id: int, skip: int = 0, limit: int = 100):
+    return db.query(models.LecturaConsumo).filter(
+        models.LecturaConsumo.id_medidor == medidor_id
+    ).order_by(models.LecturaConsumo.anio.desc(), models.LecturaConsumo.mes.desc()).offset(skip).limit(limit).all()
+
 def get_lectura(db: Session, lectura_id: int) -> models.LecturaConsumo:
-    return db.get(models.LecturaConsumo, lectura_id)
-
-def list_lecturas(db: Session):
-    return db.query(models.LecturaConsumo).all()
-
-def delete_lectura(db: Session, lectura_id: int) -> bool:
-    obj = db.get(models.LecturaConsumo, lectura_id)
-    if not obj:
-        return False
-    db.delete(obj)
-    db.commit()
-    return True
+    return db.query(models.LecturaConsumo).filter(models.LecturaConsumo.id_lectura == lectura_id).first()
