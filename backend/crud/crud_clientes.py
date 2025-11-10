@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from .. import models, schemas
+from . . import models, schemas
 
 
 def create_registro(db:Session, data: schemas.registroCreate) -> models.Resgisro:

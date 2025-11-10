@@ -17,5 +17,18 @@ def create_registro(db:Session, data: schemas.registroCreate) -> models.Resgisro
     db.refresh(obj)
     return obj
 
+
 def get_Registro(db:Session,registro_id: int) -> models.Registro | None:
     return db.get(models.Registro)
+
+def list_registro(db: Session) -> list[models.Registro]:
+        return db.get(models.Registro).all()
+
+def delete_registro(db: Session, registro_id: int) -> bool:
+    obj = db.get(models.Registro,registro_id)
+    
+    if not obj:
+        return False
+    db.delete(obj)
+    db.commit()
+    return True
