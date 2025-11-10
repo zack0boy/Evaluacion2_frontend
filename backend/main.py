@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from .database import engine, Base, get_db
 from . import schemas
-from .Crud import crud_clientes, crud_medidores
+from .Crud import crud_clientes, crud_medidores, crud_correo
 
 # Crear las tablas
 Base.metadata.create_all(bind=engine)
@@ -199,28 +199,57 @@ def listar_boletas_mes(anio: int, mes: int, db: Session = Depends(get_db)):
     return crud_boletas.get_boletas_por_mes(db, anio, mes)
 
 # =======================
-# CORREO
+# CORREO    
 # =======================
 
-@app.post("/correo/boleta/{boleta_id}", tags=["Correo"])
-def enviar_boleta_por_correo(boleta_id: int, correo: schemas.CorreoRequest, db: Session = Depends(get_db)):
+@app.get("/correo/boleta/{boleta_id}/datos", tags=["Correo"])
+def obtener_datos_boleta_para_correo(boleta_id: int, db: Session = Depends(get_db)):
     """
-    Enviar boleta por correo electrónico
+    Obtener datos de boleta para que el frontend genere el HTML del correo
     """
     try:
+        datos = crud_correo.obtener_datos_boleta_para_correo(db, boleta_id)
+        return {
+            "success": True,
+            "data": datos
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error obteniendo datos: {str(e)}")
+
+@app.post("/correo/boleta/{boleta_id}/enviar", tags=["Correo"])
+def enviar_boleta_por_correo(
+    boleta_id: int, 
+    request: schemas.CorreoEnvioRequest,  # Nuevo esquema
+    db: Session = Depends(get_db)
+):
+    """
+    Enviar boleta por correo con HTML generado desde el frontend
+    """
+    try:
+        # Primero verificar que la boleta existe
+        boleta = crud_boletas.get_boleta(db, boleta_id)
+        if not boleta:
+            raise HTTPException(status_code=404, detail="Boleta no encontrada")
+        
         # Usar la versión simulada para desarrollo
-        # Para producción, usar: crud_correo.enviar_boleta_por_correo
-        success = crud_correo.enviar_boleta_por_correo_simulado(db, boleta_id, correo)
+        # Para producción: crud_correo.enviar_correo_con_html
+        success = crud_correo.enviar_correo_con_html_simulado(
+            external_html=request.html_content,
+            email_destino=request.email_destino,
+            asunto=request.asunto or f"Boleta de Servicio - {boleta.mes}/{boleta.anio}"
+        )
         
         if success:
             return {
-                "message": f"Boleta {boleta_id} enviada exitosamente a {correo.email_destino}",
+                "message": f"Boleta {boleta_id} enviada exitosamente a {request.email_destino}",
                 "enviado": True
             }
         else:
             raise HTTPException(status_code=500, detail="Error al enviar el correo")
             
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al enviar correo: {str(e)}")

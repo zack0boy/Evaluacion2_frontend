@@ -80,3 +80,18 @@ class PaginatedResponse(BaseModel):
     limit: int
     total: int
     items: List
+
+# ==========================================================
+# CORREO
+# ==========================================================
+
+class CorreoRequest(BaseModel):
+    email_destino: EmailStr
+    asunto: Optional[str] = "Boleta de Servicio"
+    # Eliminar el campo de mensaje HTML
+    # El frontend generará el HTML
+    
+class CorreoEnvioRequest(BaseModel):
+    email_destino: EmailStr
+    asunto: Optional[str] = None
+    html_content: str  # HTML generado por el frontend
