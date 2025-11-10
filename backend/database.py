@@ -1,28 +1,30 @@
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker,declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
 # Cargar variables del archivo .env
 load_dotenv()
 
-# Obtener la URL de conexión desde el archivo .env
-# Ejemplo: DATABASE_URL=mysql+pymysql://root:1234@localhost:3306/mi_proyecto
+# Leer la URL de conexión
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+# Crear el motor de conexión
 engine = create_engine(
     DATABASE_URL,
-    echo=False,      # Cambia a True si quieres ver las consultas SQL en consola
+    echo=True,        # Cambia a False si no quieres ver las consultas SQL
     future=True
 )
 
 # Crear la sesión
-SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-base = declarative_base()
+# Declarar la base de modelos
+Base = declarative_base()
 
+# Dependencia para obtener la sesión en los endpoints
 def get_db():
-    db= SessionLocal()
+    db = SessionLocal()
     try:
         yield db
     finally:
