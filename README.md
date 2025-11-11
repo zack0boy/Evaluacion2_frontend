@@ -62,9 +62,9 @@ ng serve
 - Base de datos SQLite (por defecto)
 
 ## Autor
-- Gonzalo Castillo
--
--Juan Badilla 
+- Gonzalo Castillo Rebolledo
+-Maximiliano Casanova Ibañez
+-Juan Badilla Tabata
 
 ## Licencia
 MIT
