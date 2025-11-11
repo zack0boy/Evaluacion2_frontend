@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, constr, validator, Field
 from typing import Optional, List, Annotated
 from datetime import datetime
+from decimal import Decimal
 
 # ==========================================================
 # CLIENTE
@@ -80,6 +81,56 @@ class PaginatedResponse(BaseModel):
     limit: int
     total: int
     items: List
+
+# ==========================================================
+# LECTURA CONSUMO
+# ==========================================================
+
+class LecturaConsumoBase(BaseModel):
+    id_medidor: int
+    anio: int
+    mes: int
+    lectura_kwh: int
+    observacion: Optional[str] = None
+
+class LecturaConsumoCreate(LecturaConsumoBase):
+    pass
+
+class LecturaConsumoOut(LecturaConsumoBase):
+    id_lectura: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# BOLETA
+# ==========================================================
+
+class BoletaBase(BaseModel):
+    id_cliente: int
+    anio: int
+    mes: int
+    kwh_total: Decimal
+    tarifa_base: Decimal
+    cargos: Optional[Decimal] = Decimal("0.00")
+    iva: Optional[Decimal] = Decimal("0.00")
+    total_pagar: Optional[Decimal] = Decimal("0.00")
+    estado: Optional[str] = "emitida"
+
+class BoletaCreate(BoletaBase):
+    """
+    Esquema usado para crear una nueva boleta.
+    """
+    pass
+
+class BoletaOut(BoletaBase):
+    id_boleta: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 # ==========================================================
 # CORREO

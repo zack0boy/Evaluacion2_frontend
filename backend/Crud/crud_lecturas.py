@@ -40,3 +40,9 @@ def get_lecturas_por_medidor(db: Session, medidor_id: int, skip: int = 0, limit:
 
 def get_lectura(db: Session, lectura_id: int) -> models.LecturaConsumo:
     return db.query(models.LecturaConsumo).filter(models.LecturaConsumo.id_lectura == lectura_id).first()
+
+def get_lecturas_por_mes(db: Session, anio: int, mes: int):
+    return db.query(models.LecturaConsumo).filter(
+        models.LecturaConsumo.anio == anio,
+        models.LecturaConsumo.mes == mes
+    ).order_by(models.LecturaConsumo.id_medidor.asc()).all()
