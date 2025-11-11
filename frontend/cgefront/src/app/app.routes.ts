@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'clientes', pathMatch: 'full' },
+  { path: 'listar-medidores', redirectTo: 'medidores/listar' },
+  { path: 'nuevo-medidor', redirectTo: 'medidores/nuevo' },
   { path: 'nuevo', redirectTo: 'clientes/nuevo' },
   { path: 'clientes', loadChildren: () => import('./clientes/clientes.module').then(m => m.ClientesModule) },
   { path: 'medidores', loadChildren: () => import('./medidores/medidores.module').then(m => m.MedidoresModule) },

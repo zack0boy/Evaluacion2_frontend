@@ -3,27 +3,25 @@
 
   <div class="flex mb-4 gap-2">
     <input [(ngModel)]="filtro" (input)="filtrarClientes()" placeholder="Buscar por RUT o nombre..." class="border p-2 rounded w-full"/>
-   <button class="bg-blue-600 text-white px-4 py-2 rounded">
-    <a href="/nuevo">+ Nuevo</a>
+   <button (click)="crearCliente()" class="bg-blue-600 text-white px-4 py-2 rounded">
+    + Nuevo Cliente
     </button>
   </div>
 
-  <table class="table-auto w-full bg-white shadow-md rounded-lg" *ngIf="clientes.length > 0; else vacio">
+  <table class="table-auto w-full bg-white shadow-md rounded-lg" *ngIf="!cargando && clientesFiltrados.length > 0; else vacio">
     <thead class="bg-blue-600 text-white">
       <tr>
         <th class="p-3">RUT</th>
         <th class="p-3">Nombre</th>
         <th class="p-3">Correo</th>
-        <th class="p-3">Estado</th>
         <th class="p-3 text-center">Acciones</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let c of clientes" class="border-b hover:bg-gray-50">
+      <tr *ngFor="let c of clientesFiltrados" class="border-b hover:bg-gray-50">
         <td class="p-3">{{ c.rut }}</td>
         <td class="p-3">{{ c.nombre_razon }}</td>
-        <td class="p-3">{{ c.email_contacto }}</td>
-        <td class="p-3">{{ c.estado ? 'Activo' : 'Inactivo' }}</td>
+        <td class="p-3">{{ c.email }}</td>
         <td class="p-3 flex justify-center gap-2">
           <button (click)="editarCliente(c.id_cliente)" class="bg-blue-500 text-white px-3 py-1 rounded">Editar</button>
           <button (click)="eliminarCliente(c.id_cliente)" class="bg-red-500 text-white px-3 py-1 rounded">Eliminar</button>
@@ -33,6 +31,7 @@
   </table>
 
   <ng-template #vacio>
-    <p class="text-gray-500 text-center mt-6">No hay clientes registrados.</p>
+    <p *ngIf="!cargando" class="text-gray-500 text-center mt-6">{{ clientesFiltrados.length === 0 && filtro ? 'No hay clientes que coincidan con la búsqueda.' : 'No hay clientes registrados.' }}</p>
+    <p *ngIf="cargando" class="text-gray-500 text-center mt-6">⏳ Cargando clientes...</p>
   </ng-template>
 </div>

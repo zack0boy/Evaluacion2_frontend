@@ -4,6 +4,7 @@ import { ListarMedidoresComponent } from './listar-medidores/listar-medidores.co
 import { MedidorFormComponent } from './medidor-form/medidor-form.component';
 const routes: Routes = [
   { path: '', component: ListarMedidoresComponent },
+  { path: 'nuevo', component: MedidorFormComponent },
   { path: 'editar/:id', component: MedidorFormComponent },
 ];
 

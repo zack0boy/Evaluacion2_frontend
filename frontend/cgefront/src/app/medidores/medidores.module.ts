@@ -6,12 +6,11 @@ import { MedidoresComponent } from './medidores.component';
 
 
 @NgModule({
-  declarations: [
-    MedidoresComponent
-  ],
+  declarations: [],
   imports: [
     CommonModule,
-    MedidoresRoutingModule
+    MedidoresRoutingModule,
+    MedidoresComponent
   ]
 })
 export class MedidoresModule { }

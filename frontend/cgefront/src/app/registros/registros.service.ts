@@ -13,20 +13,27 @@ export interface Registro {
 
 @Injectable({ providedIn: 'root' })
 export class RegistrosService {
-  crear(nuevoRegistro: { tipo: string; descripcion: string; operador: string; fecha_registro: string; }) {
-    throw new Error('Method not implemented.');
-  }
+  private apiUrl = 'http://localhost:8000/api/registros'; // Endpoint del backend
+
   constructor(private http: HttpClient) {}
 
+  // Crear registro
+  crear(nuevoRegistro: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, nuevoRegistro);
+  }
+
+  // Listar todos los registros
   listar(): Observable<Registro[]> {
-    return this.http.get<Registro[]>('/registros/');
+    return this.http.get<Registro[]>(this.apiUrl);
   }
 
+  // Obtener registro por ID
   obtener(id: number): Observable<Registro> {
-    return this.http.get<Registro>(`/registros/${id}/`);
+    return this.http.get<Registro>(`${this.apiUrl}/${id}`);
   }
 
+  // Eliminar registro
   eliminar(id: number): Observable<any> {
-    return this.http.delete(`/registros/${id}/`);
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }
