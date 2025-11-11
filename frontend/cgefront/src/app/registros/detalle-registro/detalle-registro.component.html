@@ -1,0 +1,11 @@
+<div *ngIf="registro">
+  <h2>Detalle del Registro #{{ registro.id || 'N/A' }}</h2>
+  <p><strong>Tipo:</strong> {{ registro.tipo || 'N/A' }}</p>
+  <p><strong>Descripción:</strong> {{ registro.descripcion || 'N/A' }}</p>
+  <p><strong>Operador:</strong> {{ registro.operador || 'N/A' }}</p>
+  <p><strong>Fecha:</strong> {{ registro.fecha_registro || 'N/A' }}</p>
+</div>
+
+<ng-template #cargando>
+  <p>Cargando...</p>
+</ng-template>
