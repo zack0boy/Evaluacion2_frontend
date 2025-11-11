@@ -15,7 +15,8 @@ import { MedidoresService } from './medidores.service';
 export class MedidoresComponent implements OnInit {
   busqueda: string = '';
   medidores: any[] = [];
-  medidorActual: any = { id_medidor: 0, codigo_medidor: '', cliente: null, estado: true };
+  // Use id_cliente in the shape sent to the backend; keep cliente for display if present
+  medidorActual: any = { id_medidor: 0, codigo_medidor: '', id_cliente: null, cliente: null, direccion_suministro: '', estado: true };
   modoEdicion: boolean = false;
 
   constructor(private medidoresService: MedidoresService) {}
@@ -27,7 +28,12 @@ export class MedidoresComponent implements OnInit {
   cargarMedidores(): void {
     this.medidoresService.obtenerMedidores().subscribe({
       next: (data: any) => {
-        this.medidores = data.items || [];
+        // backend may return a plain array or a paginated object
+        if (Array.isArray(data)) {
+          this.medidores = data;
+        } else {
+          this.medidores = data.items || data || [];
+        }
       },
       error: (err: any) => console.error('Error al cargar medidores:', err)
     });
@@ -52,7 +58,15 @@ export class MedidoresComponent implements OnInit {
       return;
     }
 
-    this.medidoresService.crearMedidor(this.medidorActual).subscribe({
+    // Ensure we build a payload that matches backend expectations
+    const payload: any = {
+      codigo_medidor: this.medidorActual.codigo_medidor,
+      id_cliente: this.medidorActual.id_cliente ?? (this.medidorActual.cliente ? this.medidorActual.cliente.id_cliente : null),
+      direccion_suministro: this.medidorActual.direccion_suministro ?? '',
+      estado: this.medidorActual.estado ?? 'activo'
+    };
+
+    this.medidoresService.crearMedidor(payload).subscribe({
       next: (res: any) => {
         console.log('Medidor creado:', res);
         this.cargarMedidores();
@@ -65,13 +79,21 @@ export class MedidoresComponent implements OnInit {
   editarMedidor(id: number): void {
     const medidor = this.medidores.find(m => m.id_medidor === id);
     if (medidor) {
-      this.medidorActual = { ...medidor };
+      // Keep both id_cliente and cliente object if available
+      this.medidorActual = { ...medidor, id_cliente: medidor.id_cliente ?? medidor.cliente?.id_cliente };
       this.modoEdicion = true;
     }
   }
 
   guardarMedidor(): void {
-    this.medidoresService.actualizarMedidor(this.medidorActual.id_medidor, this.medidorActual).subscribe({
+    const payload = {
+      codigo_medidor: this.medidorActual.codigo_medidor,
+      id_cliente: this.medidorActual.id_cliente ?? (this.medidorActual.cliente ? this.medidorActual.cliente.id_cliente : null),
+      direccion_suministro: this.medidorActual.direccion_suministro ?? '',
+      estado: this.medidorActual.estado ?? 'activo'
+    };
+
+    this.medidoresService.actualizarMedidor(this.medidorActual.id_medidor, payload).subscribe({
       next: (res: any) => {
         console.log('Medidor actualizado:', res);
         this.cargarMedidores();
@@ -94,7 +116,7 @@ export class MedidoresComponent implements OnInit {
   }
 
   limpiarFormulario(): void {
-    this.medidorActual = { id_medidor: 0, codigo_medidor: '', cliente: null, estado: true };
+    this.medidorActual = { id_medidor: 0, codigo_medidor: '', id_cliente: null, cliente: null, direccion_suministro: '', estado: true };
     this.modoEdicion = false;
   }
 }

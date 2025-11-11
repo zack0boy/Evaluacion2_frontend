@@ -12,31 +12,31 @@ export class MedidoresService {
 
   // Obtener todos los medidores
   obtenerMedidores(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);
+    return this.http.get<any>(`${this.apiUrl}/`);
   }
 
   // Obtener medidor por ID
   obtenerMedidorPorId(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/${id}/`);
   }
 
   // Obtener medidores por cliente
   obtenerMedidoresPorCliente(clienteId: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/cliente/${clienteId}`);
+    return this.http.get<any>(`${this.apiUrl}/cliente/${clienteId}/`);
   }
 
   // Crear medidor
   crearMedidor(medidor: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, medidor);
+    return this.http.post<any>(`${this.apiUrl}/`, medidor);
   }
 
   // Actualizar medidor
   actualizarMedidor(id: number, medidor: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, medidor);
+    return this.http.put<any>(`${this.apiUrl}/${id}/`, medidor);
   }
 
   // Eliminar medidor
   eliminarMedidor(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+    return this.http.delete<any>(`${this.apiUrl}/${id}/`);
   }
 }

@@ -37,7 +37,7 @@ class ClienteUpdate(BaseModel):
 
 class ClienteOut(ClienteBase):
     id_cliente: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
     class Config:
@@ -60,7 +60,7 @@ class MedidorUpdate(BaseModel):
     estado: str
 class MedidorOut(MedidorBase):
     id_medidor: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
     class Config:
@@ -80,7 +80,7 @@ class PaginatedResponse(BaseModel):
     page: int
     limit: int
     total: int
-    items: List
+    items: List[ClienteOut]
 
 # ==========================================================
 # LECTURA CONSUMO
@@ -98,7 +98,7 @@ class LecturaConsumoCreate(LecturaConsumoBase):
 
 class LecturaConsumoOut(LecturaConsumoBase):
     id_lectura: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -127,7 +127,7 @@ class BoletaCreate(BoletaBase):
 
 class BoletaOut(BoletaBase):
     id_boleta: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

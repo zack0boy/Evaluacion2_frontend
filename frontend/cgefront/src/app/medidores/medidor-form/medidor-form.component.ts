@@ -13,10 +13,10 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./medidor-form.component.scss']
 })
 export class MedidorFormComponent implements OnInit {
-  // Formulario
+  // Formulario (usar el nombre que espera el backend: id_cliente)
   medidor = {
     codigo_medidor: '',
-    cliente_id: null as number | null,
+    id_cliente: null as number | null,
     direccion_suministro: '',
     estado: true
   };
@@ -64,7 +64,13 @@ export class MedidorFormComponent implements OnInit {
       this.cargando = true;
       this.medidoresService.obtenerMedidorPorId(this.medidorId).subscribe({
         next: (data) => {
-          this.medidor = data;
+          // Mapear la respuesta al shape del formulario (asegurar id_cliente)
+          this.medidor = {
+            codigo_medidor: data.codigo_medidor,
+            id_cliente: data.id_cliente ?? null,
+            direccion_suministro: data.direccion_suministro ?? '',
+            estado: data.estado ?? true
+          };
           this.cargando = false;
         },
         error: (error) => {
@@ -82,7 +88,7 @@ export class MedidorFormComponent implements OnInit {
       return false;
     }
 
-    if (!this.medidor.cliente_id || this.medidor.cliente_id <= 0) {
+    if (!this.medidor.id_cliente || this.medidor.id_cliente <= 0) {
       alert('Debe seleccionar un cliente válido');
       return false;
     }
@@ -143,7 +149,7 @@ export class MedidorFormComponent implements OnInit {
   limpiar(): void {
     this.medidor = {
       codigo_medidor: '',
-      cliente_id: null,
+      id_cliente: null,
       direccion_suministro: '',
       estado: true
     };

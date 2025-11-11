@@ -1,22 +1,7 @@
-from sqlalchemy import Column, Integer, String
-from .database import Base, engine
-from sqlalchemy.orm import relationship
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    DECIMAL,
-    ForeignKey,
-    UniqueConstraint,
-    CheckConstraint
-)
-
-from sqlalchemy import (
-    Column, Integer, String, DECIMAL, ForeignKey,
-    UniqueConstraint, CheckConstraint
-)
+from sqlalchemy import Column, Integer, String, DateTime, DECIMAL, ForeignKey, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import relationship
 from .database import Base
+from datetime import datetime
 
 
 # =======================
@@ -32,8 +17,8 @@ class Cliente(Base):
     telefono = Column(String(20))
     direccion_facturacion = Column(String(150))
     estado = Column(String(20), nullable=False, default="activo")
-    created_at = Column(String(100))
-    updated_at = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
 
     # Relaciones
     medidores = relationship("Medidor", back_populates="cliente", cascade="all, delete")
@@ -51,8 +36,8 @@ class Medidor(Base):
     id_cliente = Column(Integer, ForeignKey("clientes.id_cliente"), nullable=False)
     direccion_suministro = Column(String(150))
     estado = Column(String(20), nullable=False, default="activo")
-    created_at = Column(String(100))
-    updated_at = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
 
     # Relaciones
     cliente = relationship("Cliente", back_populates="medidores")
@@ -71,7 +56,7 @@ class LecturaConsumo(Base):
     mes = Column(Integer, nullable=False)
     lectura_kwh = Column(Integer, nullable=False)
     observacion = Column(String(255))
-    created_at = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     __table_args__ = (
         UniqueConstraint("id_medidor", "anio", "mes", name="uq_medidor_anio_mes"),
@@ -97,7 +82,7 @@ class Boleta(Base):
     iva = Column(DECIMAL(10, 2), nullable=False)
     total_pagar = Column(DECIMAL(10, 2), nullable=False)
     estado = Column(String(20), nullable=False, default="emitida")
-    created_at = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     __table_args__ = (
         UniqueConstraint("id_cliente", "anio", "mes", name="uq_cliente_anio_mes"),

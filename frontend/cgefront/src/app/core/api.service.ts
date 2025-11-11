@@ -28,15 +28,15 @@ export class ApiService {
   }
 
   obtenerClientePorId(clienteId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/clientes/${clienteId}`);
+    return this.http.get(`${this.apiUrl}/clientes/${clienteId}/`);
   }
 
   actualizarCliente(clienteId: number, cliente: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/clientes/${clienteId}`, cliente);
+    return this.http.put(`${this.apiUrl}/clientes/${clienteId}/`, cliente);
   }
 
   eliminarCliente(clienteId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/clientes/${clienteId}`);
+    return this.http.delete(`${this.apiUrl}/clientes/${clienteId}/`);
   }
 
   // ===============================
@@ -51,19 +51,19 @@ export class ApiService {
   }
 
   obtenerMedidorPorId(medidorId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/medidores/${medidorId}`);
+    return this.http.get(`${this.apiUrl}/medidores/${medidorId}/`);
   }
 
   actualizarMedidor(medidorId: number, medidor: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/medidores/${medidorId}`, medidor);
+    return this.http.put(`${this.apiUrl}/medidores/${medidorId}/`, medidor);
   }
 
   eliminarMedidor(medidorId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/medidores/${medidorId}`);
+    return this.http.delete(`${this.apiUrl}/medidores/${medidorId}/`);
   }
 
   obtenerMedidoresPorCliente(clienteId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/medidores/cliente/${clienteId}`);
+    return this.http.get(`${this.apiUrl}/medidores/cliente/${clienteId}/`);
   }
 
   // ===============================
@@ -74,7 +74,7 @@ export class ApiService {
   }
 
   obtenerLecturasPorMedidor(medidorId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/lecturas/medidor/${medidorId}`);
+    return this.http.get(`${this.apiUrl}/lecturas/medidor/${medidorId}/`);
   }
 
   // ===============================
@@ -96,10 +96,10 @@ export class ApiService {
   // CORREO
   // ===============================
   obtenerDatosBoletaParaCorreo(boletaId: number): Observable<any> {
-    return this.http.get(`/correo/boleta/${boletaId}/datos`);
+    return this.http.get(`http://localhost:8000/correo/boleta/${boletaId}/datos`);
   }
 
   enviarBoletaPorCorreo(boletaId: number, datos: any): Observable<any> {
-    return this.http.post(`/correo/boleta/${boletaId}/enviar`, datos);
+    return this.http.post(`http://localhost:8000/correo/boleta/${boletaId}/enviar`, datos);
   }
 }
