@@ -1,24 +1,21 @@
 from typing import List
-from fastapi import FastAPI, status, HTTPException, Depends
+from fastapi import FastAPI, status, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from .database import engine, Base, get_db
 from . import schemas
-from .Crud import crud_clientes, crud_medidores, crud_lecturas, crud_boletas, crud_registros
+from .Crud import crud_clientes, crud_medidores, crud_correo, crud_boletas, crud_lecturas
 
-# Crear las tablas en la base de datos
+# Crear las tablas
 Base.metadata.create_all(bind=engine)
 
-# Crear la aplicación FastAPI
 app = FastAPI(
     title="Sistema de Gestión de Clientes y Medidores",
-    description="API para gestión de clientes, medidores, lecturas y boletas"
+    description="API para gestión de clientes y medidores"
 )
 
-# =======================
-# CONFIGURAR CORS
-# =======================
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,49 +24,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =======================
-# ENDPOINTS
-# =======================
-
 @app.get("/")
 async def read_root():
-    return {"message": "API de gestión de clientes funcionando correctamente"}
+    return {"message": "API de gestión de clientes y medidores funcionando correctamente"}
 
 # =======================
-# ENDPOINTS PARA CLIENTES
+# CLIENTES (CRUD COMPLETO)
 # =======================
 
-@app.post(
-    "/clientes/",
-    response_model=schemas.ClienteOut,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Clientes"]
-)
+@app.post("/api/clientes/", response_model=schemas.ClienteOut, tags=["Clientes"])
 def crear_cliente(cliente: schemas.ClienteCreate, db: Session = Depends(get_db)):
     """
     Crear un nuevo cliente
     """
     try:
         return crud_clientes.create_cliente(db, cliente)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error al crear el cliente: {str(e)}")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-@app.get(
-    "/clientes/",
-    response_model=List[schemas.ClienteOut],
-    tags=["Clientes"]
-)
-def listar_clientes(db: Session = Depends(get_db)):
+@app.get("/api/clientes/", response_model=schemas.PaginatedResponse, tags=["Clientes"])
+def buscar_clientes(
+    rut: str = Query(None),
+    nombre_razon: str = Query(None),
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db)
+):
     """
-    Obtener todos los clientes
+    Buscar clientes con paginación
     """
-    return crud_clientes.list_clientes(db)
+    search = schemas.ClienteSearch(
+        rut=rut,
+        nombre_razon=nombre_razon,
+        page=page,
+        limit=limit
+    )
+    return crud_clientes.search_clientes(db, search)
 
-@app.get(
-    "/clientes/{cliente_id}",
-    response_model=schemas.ClienteOut,
-    tags=["Clientes"]
-)
+@app.get("/api/clientes/{cliente_id}", response_model=schemas.ClienteOut, tags=["Clientes"])
 def obtener_cliente(cliente_id: int, db: Session = Depends(get_db)):
     """
     Obtener un cliente por ID
@@ -79,110 +71,185 @@ def obtener_cliente(cliente_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return cliente
 
+@app.put("/api/clientes/{cliente_id}", response_model=schemas.ClienteOut, tags=["Clientes"])
+def actualizar_cliente(cliente_id: int, cliente: schemas.ClienteUpdate, db: Session = Depends(get_db)):
+    """
+    Actualizar un cliente existente
+    """
+    updated = crud_clientes.update_cliente(db, cliente_id, cliente)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return updated
+
+@app.delete("/api/clientes/{cliente_id}", tags=["Clientes"])
+def eliminar_cliente(cliente_id: int, db: Session = Depends(get_db)):
+    """
+    Eliminar un cliente
+    """
+    success = crud_clientes.delete_cliente(db, cliente_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return {"message": "Cliente eliminado correctamente"}
+
 # =======================
-# ENDPOINTS PARA MEDIDORES
+# MEDIDORES (CRUD COMPLETO)
 # =======================
 
-@app.post(
-    "/medidores/",
-    response_model=schemas.MedidorOut,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Medidores"]
-)
+@app.post("/api/medidores/", response_model=schemas.MedidorOut, tags=["Medidores"])
 def crear_medidor(medidor: schemas.MedidorCreate, db: Session = Depends(get_db)):
     """
-    Crear un nuevo medidor
+    Crear un nuevo medidor asociado a un cliente
     """
     try:
         return crud_medidores.create_medidor(db, medidor)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error al crear el medidor: {str(e)}")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-@app.get(
-    "/medidores/",
-    response_model=List[schemas.MedidorOut],
-    tags=["Medidores"]
-)
+@app.get("/api/medidores/", response_model=List[schemas.MedidorOut], tags=["Medidores"])
 def listar_medidores(db: Session = Depends(get_db)):
     """
-    Obtener todos los medidores
+    Listar todos los medidores
     """
     return crud_medidores.list_medidores(db)
 
+@app.get("/api/medidores/{medidor_id}", response_model=schemas.MedidorOut, tags=["Medidores"])
+def obtener_medidor(medidor_id: int, db: Session = Depends(get_db)):
+    """
+    Obtener un medidor por ID
+    """
+    medidor = crud_medidores.get_medidor(db, medidor_id)
+    if not medidor:
+        raise HTTPException(status_code=404, detail="Medidor no encontrado")
+    return medidor
+
+@app.put("/api/medidores/{medidor_id}", response_model=schemas.MedidorOut, tags=["Medidores"])
+def actualizar_medidor(medidor_id: int, medidor: schemas.MedidorUpdate, db: Session = Depends(get_db)):
+    """
+    Actualizar un medidor existente
+    """
+    updated = crud_medidores.update_medidor(db, medidor_id, medidor)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Medidor no encontrado")
+    return updated
+
+@app.delete("/api/medidores/{medidor_id}", tags=["Medidores"])
+def eliminar_medidor(medidor_id: int, db: Session = Depends(get_db)):
+    """
+    Eliminar un medidor
+    """
+    success = crud_medidores.delete_medidor(db, medidor_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Medidor no encontrado")
+    return {"message": "Medidor eliminado correctamente"}
+
+@app.get("/api/medidores/cliente/{cliente_id}", response_model=List[schemas.MedidorOut], tags=["Medidores"])
+def listar_medidores_cliente(cliente_id: int, db: Session = Depends(get_db)):
+    """
+    Listar todos los medidores de un cliente específico
+    """
+    return crud_medidores.get_medidores_por_cliente(db, cliente_id)
+
 # =======================
-# ENDPOINTS PARA LECTURAS
+# LECTURAS (crear/listar por medidor/mes)
 # =======================
 
-@app.post(
-    "/lecturas/",
-    response_model=schemas.LecturaConsumoOut,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Lecturas"]
-)
+@app.post("/api/lecturas/", response_model=schemas.LecturaConsumoOut, tags=["Lecturas"])
 def crear_lectura(lectura: schemas.LecturaConsumoCreate, db: Session = Depends(get_db)):
     """
     Crear una nueva lectura de consumo
     """
     try:
         return crud_lecturas.create_lectura(db, lectura)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error al crear la lectura: {str(e)}")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/lecturas/medidor/{medidor_id}", response_model=List[schemas.LecturaConsumoOut], tags=["Lecturas"])
+def listar_lecturas_medidor(medidor_id: int, db: Session = Depends(get_db)):
+    """
+    Listar lecturas por medidor
+    """
+    return crud_lecturas.get_lecturas_por_medidor(db, medidor_id)
 
 # =======================
-# ENDPOINTS PARA BOLETAS
+# BOLETAS (generar/listar por cliente/mes)
 # =======================
 
-@app.post(
-    "/boletas/",
-    response_model=schemas.BoletaOut,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Boletas"]
-)
+@app.post("/api/boletas/", response_model=schemas.BoletaOut, tags=["Boletas"])
 def crear_boleta(boleta: schemas.BoletaCreate, db: Session = Depends(get_db)):
     """
-    Crear una nueva boleta
+    Generar una nueva boleta
     """
     try:
         return crud_boletas.create_boleta(db, boleta)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error al crear la boleta: {str(e)}")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-# =======================
-# ENDPOINT PARA REGISTRO COMPLETO
-# =======================
-
-@app.post(
-    "/registros-completos/",
-    status_code=status.HTTP_201_CREATED,
-    tags=["Registros Completos"]
-)
-def crear_registro_completo(registro: schemas.RegistroCreate, db: Session = Depends(get_db)):
+@app.get("/api/boletas/cliente/{cliente_id}", response_model=List[schemas.BoletaOut], tags=["Boletas"])
+def listar_boletas_cliente(cliente_id: int, db: Session = Depends(get_db)):
     """
-    Endpoint para crear un registro completo (cliente, medidor, lectura, boleta) en una sola operación
+    Listar boletas por cliente
+    """
+    return crud_boletas.get_boletas_por_cliente(db, cliente_id)
+
+@app.get("/api/boletas/mes/{anio}/{mes}", response_model=List[schemas.BoletaOut], tags=["Boletas"])
+def listar_boletas_mes(anio: int, mes: int, db: Session = Depends(get_db)):
+    """
+    Listar boletas por mes y año
+    """
+    return crud_boletas.get_boletas_por_mes(db, anio, mes)
+
+# =======================
+# CORREO    
+# =======================
+
+@app.get("/correo/boleta/{boleta_id}/datos", tags=["Correo"])
+def obtener_datos_boleta_para_correo(boleta_id: int, db: Session = Depends(get_db)):
+    """
+    Obtener datos de boleta para que el frontend genere el HTML del correo
     """
     try:
-        resultado = crud_registros.create_registro_completo(db, registro)
+        datos = crud_correo.obtener_datos_boleta_para_correo(db, boleta_id)
         return {
-            "message": "Registro completo creado exitosamente",
-            "data": resultado
+            "success": True,
+            "data": datos
         }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error al crear el registro completo: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error obteniendo datos: {str(e)}")
 
-@app.get(
-    "/registros-completos/cliente/{cliente_id}",
-    tags=["Registros Completos"]
-)
-def obtener_registro_completo(cliente_id: int, db: Session = Depends(get_db)):
+@app.post("/correo/boleta/{boleta_id}/enviar", tags=["Correo"])
+def enviar_boleta_por_correo(
+    boleta_id: int, 
+    request: schemas.CorreoEnvioRequest,  # Nuevo esquema
+    db: Session = Depends(get_db)
+):
     """
-    Obtener todos los datos relacionados con un cliente específico
+    Enviar boleta por correo con HTML generado desde el frontend
     """
     try:
-        registro = crud_registros.get_registro_completo_por_cliente(db, cliente_id)
-        if not registro:
-            raise HTTPException(status_code=404, detail="Cliente no encontrado")
-        return registro
+        # Primero verificar que la boleta existe
+        boleta = crud_boletas.get_boleta(db, boleta_id)
+        if not boleta:
+            raise HTTPException(status_code=404, detail="Boleta no encontrada")
+        
+        # Usar la versión simulada para desarrollo
+        # Para producción: crud_correo.enviar_correo_con_html
+        success = crud_correo.enviar_correo_con_html_simulado(
+            external_html=request.html_content,
+            email_destino=request.email_destino,
+            asunto=request.asunto or f"Boleta de Servicio - {boleta.mes}/{boleta.anio}"
+        )
+        
+        if success:
+            return {
+                "message": f"Boleta {boleta_id} enviada exitosamente a {request.email_destino}",
+                "enviado": True
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Error al enviar el correo")
+            
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error al obtener el registro: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error al enviar correo: {str(e)}")

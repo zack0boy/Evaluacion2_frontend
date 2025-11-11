@@ -1,43 +1,45 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from .. import models, schemas
 
-# Crear cliente
 def create_cliente(db: Session, data: schemas.ClienteCreate) -> models.Cliente:
-    obj = models.Cliente(
-        rut=data.rut,
-        nombre_razon=data.nombre_razon,
-        email_contacto=data.email_contacto,
-        telefono=data.telefono,
-        direccion_facturacion=data.direccion_facturacion,
-        estado=data.estado
-    )
-
+    # Verificar si el RUT ya existe
+    existing = db.query(models.Cliente).filter(models.Cliente.rut == data.rut).first()
+    if existing:
+        raise ValueError("El RUT ya está registrado")
+    
+    obj = models.Cliente(**data.dict())
     db.add(obj)
     db.commit()
     db.refresh(obj)
     return obj
 
-# Obtener cliente por ID
 def get_cliente(db: Session, cliente_id: int) -> models.Cliente:
-    return db.get(models.Cliente, cliente_id)
+    return db.query(models.Cliente).filter(models.Cliente.id_cliente == cliente_id).first()
 
-# Listar todos los clientes
-def list_clientes(db: Session):
-    return db.query(models.Cliente).all()
+def search_clientes(db: Session, search: schemas.ClienteSearch):
+    query = db.query(models.Cliente)
+    
+    if search.rut:
+        query = query.filter(models.Cliente.rut.contains(search.rut))
+    if search.nombre_razon:
+        query = query.filter(models.Cliente.nombre_razon.contains(search.nombre_razon))
+    
+    total = query.count()
+    items = query.offset((search.page - 1) * search.limit).limit(search.limit).all()
+    
+    return {
+        "page": search.page,
+        "limit": search.limit,
+        "total": total,
+        "items": items
+    }
 
-# Eliminar cliente por ID
-def delete_cliente(db: Session, cliente_id: int) -> bool:
-    obj = db.get(models.Cliente, cliente_id)
-    if not obj:
-        return False
+def list_clientes(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Cliente).offset(skip).limit(limit).all()
 
-    db.delete(obj)
-    db.commit()
-    return True
-
-# Actualizar cliente
 def update_cliente(db: Session, cliente_id: int, data: schemas.ClienteUpdate) -> models.Cliente:
-    obj = db.get(models.Cliente, cliente_id)
+    obj = db.query(models.Cliente).filter(models.Cliente.id_cliente == cliente_id).first()
     if not obj:
         return None
     
@@ -48,3 +50,11 @@ def update_cliente(db: Session, cliente_id: int, data: schemas.ClienteUpdate) ->
     db.commit()
     db.refresh(obj)
     return obj
+
+def delete_cliente(db: Session, cliente_id: int) -> bool:
+    obj = db.query(models.Cliente).filter(models.Cliente.id_cliente == cliente_id).first()
+    if not obj:
+        return False
+    db.delete(obj)
+    db.commit()
+    return True
