@@ -1,6 +1,6 @@
 import smtplib
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
+from email.mime.text import MIMEText  # Cambiado a MIMEText
+from email.mime.multipart import MIMEMultipart  # Cambiado a MIMEMultipart
 from sqlalchemy.orm import Session
 from .. import models, schemas
 import os
@@ -60,13 +60,13 @@ def enviar_correo_con_html(external_html: str, email_destino: str, asunto: str) 
         smtp_password = os.getenv("SMTP_PASSWORD", "tu_password")
         
         # Crear mensaje
-        mensaje = MimeMultipart()
+        mensaje = MIMEMultipart()  # Cambiado a MIMEMultipart
         mensaje["From"] = smtp_user
         mensaje["To"] = email_destino
         mensaje["Subject"] = asunto
         
         # Adjuntar HTML proporcionado por el frontend
-        mensaje.attach(MimeText(external_html, "html"))
+        mensaje.attach(MIMEText(external_html, "html"))  # Cambiado a MIMEText
         
         # Enviar correo
         with smtplib.SMTP(smtp_server, smtp_port) as server:

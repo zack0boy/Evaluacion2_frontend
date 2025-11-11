@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from .database import engine, Base, get_db
 from . import schemas
-from .Crud import crud_clientes, crud_medidores, crud_correo
+from .Crud import crud_clientes, crud_medidores, crud_correo, crud_boletas, crud_lecturas
 
 # Crear las tablas
 Base.metadata.create_all(bind=engine)

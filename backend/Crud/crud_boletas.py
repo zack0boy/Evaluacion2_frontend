@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-import models, schemas
+from .. import models, schemas
 from decimal import Decimal
 
 def create_boleta(db: Session, data: schemas.BoletaCreate):
