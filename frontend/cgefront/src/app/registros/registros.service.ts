@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 
 export interface Registro {
   id: number;
-  tipo: string;             // ejemplo: 'lectura' o 'boleta'
-  descripcion: string;      // qué acción ocurrió
+  tipo: string;             
+  descripcion: string;      
   operador: string;         // usuario responsable
   fecha_registro: string;   // timestamp
   id_objeto?: number;       // id del elemento relacionado (lectura/boleta)

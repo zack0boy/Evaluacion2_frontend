@@ -1,13 +1,9 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RegistrosService } from '../registros.service';
 
 @Component({
   selector: 'app-agregar-registro',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
   templateUrl: './agregar-registro.component.html',
   styleUrls: ['./agregar-registro.component.scss']
 })

@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RegistrosService, Registro } from '../registros.service';
-import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-listar-registros',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
   templateUrl: './listar-registros.component.html',
   styleUrls: ['./listar-registros.component.scss']
+  // REMOVER: standalone: true,
+  // REMOVER: imports: [CommonModule, FormsModule]
 })
 export class ListarRegistrosComponent implements OnInit {
   filtro: string = '';
@@ -36,6 +35,17 @@ export class ListarRegistrosComponent implements OnInit {
     });
   }
 
+  // Retorna los registros filtrados por la cadena `filtro` (operador o descripción).
+  get registrosFiltrados(): Registro[] {
+    const q = (this.filtro || '').trim().toLowerCase();
+    if (!q) return this.registros;
+    return this.registros.filter(r => {
+      const operador = (r.operador || '').toString().toLowerCase();
+      const descripcion = (r.descripcion || '').toString().toLowerCase();
+      return operador.includes(q) || descripcion.includes(q);
+    });
+  }
+
   verDetalle(id: number): void {
     // TODO: Navigate to detail view
     console.log('Ver detalle del registro:', id);
@@ -52,6 +62,7 @@ export class ListarRegistrosComponent implements OnInit {
       }
     });
   }
+
   formatearFecha(fecha: string): string {
     if (!fecha) return '-';
     const d = new Date(fecha);

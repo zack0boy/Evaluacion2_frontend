@@ -3,7 +3,9 @@
 
   <div class="flex mb-4 gap-2">
     <input [(ngModel)]="filtro" (input)="filtrarClientes()" placeholder="Buscar por RUT o nombre..." class="border p-2 rounded w-full"/>
-    <button (click)="crearCliente()" class="bg-blue-600 text-white px-4 py-2 rounded">+ Nuevo</button>
+   <button class="bg-blue-600 text-white px-4 py-2 rounded">
+    <a href="/nuevo">+ Nuevo</a>
+    </button>
   </div>
 
   <table class="table-auto w-full bg-white shadow-md rounded-lg" *ngIf="clientes.length > 0; else vacio">

@@ -253,3 +253,4 @@ def enviar_boleta_por_correo(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al enviar correo: {str(e)}")
+    
