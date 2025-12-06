@@ -13,7 +13,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
   templateUrl: './clientes.page.html',
   styleUrls: ['./clientes.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
 })
 export class ClientesPage implements OnInit {
 

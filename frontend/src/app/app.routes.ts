@@ -30,4 +30,12 @@ export const routes: Routes = [
     path: 'registros',
     loadComponent: () => import('./registros/registros.page').then( m => m.RegistrosPage)
   },
+  {
+    path: 'forms',
+    loadComponent: () => import('./forms/forms.page').then( m => m.FormsPage)
+  },
+  {
+    path: 'medidores-service',
+    loadComponent: () => import('./services/medidores-service/medidores-service.page').then( m => m.MedidoresServicePage)
+  },
 ];

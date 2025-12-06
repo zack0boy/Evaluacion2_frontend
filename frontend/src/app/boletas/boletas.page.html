@@ -1,13 +1,119 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>boletas</ion-title>
+    <ion-title>Boletas</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">boletas</ion-title>
-    </ion-toolbar>
-  </ion-header>
-</ion-content>
+
+<div class="page-container">
+  <div class="card">
+
+    <!-- Título -->
+    <h2 class="text-2xl font-bold mb-4 text-blue-700">🧾 Boletas</h2>
+
+    <!-- Selector de cliente -->
+    <div class="mb-4">
+      <label class="font-semibold">Cliente:</label>
+      <select 
+        [(ngModel)]="clienteSeleccionado"
+        (change)="cargarMedidores()"
+        class="border p-2 rounded w-full"
+      >
+        <option value="">Seleccione un cliente</option>
+        <option *ngFor="let c of clientes" [value]="c.id_cliente">
+          {{ c.nombre_razon }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Información del cliente -->
+    <div *ngIf="cliente" class="mb-6 bg-gray-50 p-4 rounded border">
+      <h3 class="font-bold text-lg text-blue-700 mb-2">👤 Información del Cliente</h3>
+      <p><strong>Nombre:</strong> {{ cliente.nombre_razon }}</p>
+      <p><strong>RUT:</strong> {{ cliente.rut }}</p>
+      <p><strong>Dirección:</strong> {{ cliente.direccion }}</p>
+      <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
+    </div>
+
+    <!-- Selector de medidor -->
+    <div class="mb-4" *ngIf="medidores.length > 0">
+      <label class="font-semibold">Medidor:</label>
+      <select 
+        [(ngModel)]="medidorSeleccionado"
+        (change)="cargarBoleta()"
+        class="border p-2 rounded w-full"
+      >
+        <option value="">Seleccione un medidor</option>
+        <option *ngFor="let m of medidores" [value]="m.id_medidor">
+          {{ m.codigo_medidor }} - {{ m.direccion_suministro }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Información del medidor -->
+    <div *ngIf="medidor" class="mb-6 bg-gray-50 p-4 rounded border">
+      <h3 class="font-bold text-lg text-blue-700 mb-2">⚙️ Información del Medidor</h3>
+      <p><strong>Código:</strong> {{ medidor.codigo_medidor }}</p>
+      <p><strong>Dirección Suministro:</strong> {{ medidor.direccion_suministro }}</p>
+      <p><strong>Estado:</strong> {{ medidor.estado ? 'Activo' : 'Inactivo' }}</p>
+    </div>
+
+    <!-- Tabla de boleta -->
+    <table 
+      *ngIf="boleta"
+      class="table-auto w-full bg-white shadow-md rounded-lg"
+    >
+      <thead class="bg-blue-600 text-white">
+        <tr>
+          <th class="p-3">Descripción</th>
+          <th class="p-3 text-center">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b">
+          <td class="p-3">Lectura anterior</td>
+          <td class="p-3 text-center">{{ boleta.lectura_anterior }}</td>
+        </tr>
+
+        <tr class="border-b">
+          <td class="p-3">Lectura actual</td>
+          <td class="p-3 text-center">{{ boleta.lectura_actual }}</td>
+        </tr>
+
+        <tr class="border-b">
+          <td class="p-3 font-bold">Consumo (m³)</td>
+          <td class="p-3 text-center font-bold">{{ boleta.consumo }}</td>
+        </tr>
+
+        <tr class="border-b">
+          <td class="p-3">Valor por m³</td>
+          <td class="p-3 text-center">${{ boleta.valor_m3 }}</td>
+        </tr>
+
+        <tr class="border-b bg-gray-50">
+          <td class="p-3 font-semibold">Total a pagar</td>
+          <td class="p-3 text-center font-semibold text-green-700">
+            ${{ boleta.total }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Botones -->
+    <div *ngIf="boleta" class="mt-6 flex gap-4">
+      <button class="btn-primary w-full" (click)="guardarBoleta()">
+        💾 Guardar Boleta
+      </button>
+
+      <button class="btn-danger w-full" (click)="limpiar()">
+        ❌ Limpiar
+      </button>
+    </div>
+
+    <ng-template #sinDatos>
+      <p class="text-center text-gray-500 mt-6">Seleccione un cliente.</p>
+    </ng-template>
+
+  </div>
+</div>
+

@@ -971,13 +971,6 @@ export class ClienteService {
     return this.http.delete<any>(`${this.apiUrl}/${id}/`);
   }
 }
-======================================================================================================================
-const routes: Routes = [
-  { path: '', component: ListarClientesComponent },
-  { path: 'nuevo', component: ClienteFormComponent },
-  { path: 'editar/:id', component: ClienteFormComponent },
-  { path: ':id', component: ClienteDetailComponent },
-];
 ==============================================================================================
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
