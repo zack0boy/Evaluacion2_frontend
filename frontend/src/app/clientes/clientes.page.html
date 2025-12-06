@@ -1,0 +1,124 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Clientes</ion-title>
+    <button onclick="window.location.href='/home'" class="nav-link">volver</button>
+  </ion-toolbar>
+</ion-header>
+
+<div class="page-container">
+  <div class="card">
+
+    <!-- Mensaje de error -->
+    <div *ngIf="mensajeError" class="error-box">
+      ⚠️ {{ mensajeError }}
+    </div>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="guardar()">
+
+      <!-- RUT -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">RUT *</label>
+        <input 
+          [(ngModel)]="cliente.rut" 
+          name="rut" 
+          type="text"
+          placeholder="Ej: 12345678-9"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+          required
+        />
+      </div>
+
+      <!-- Nombre o Razón Social -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Nombre o Razón Social *</label>
+        <input 
+          [(ngModel)]="cliente.nombre_razon" 
+          name="nombre_razon" 
+          type="text"
+          placeholder="Ej: Mi Empresa S.A."
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+          required
+        />
+      </div>
+
+      <!-- Email -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Email *</label>
+        <input 
+          [(ngModel)]="cliente.email" 
+          name="email" 
+          type="email"
+          placeholder="Ej: info@empresa.com"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+          required
+        />
+      </div>
+
+      <!-- Teléfono -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Teléfono</label>
+        <input 
+          [(ngModel)]="cliente.telefono" 
+          name="telefono" 
+          type="text"
+          placeholder="Ej: +56912345678"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+        />
+      </div>
+
+      <!-- Dirección -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Dirección *</label>
+        <input 
+          [(ngModel)]="cliente.direccion" 
+          name="direccion" 
+          type="text"
+          placeholder="Ej: Calle Principal 123"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+          required
+        />
+      </div>
+
+      <!-- Ciudad -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold mb-2">Ciudad</label>
+        <input 
+          [(ngModel)]="cliente.ciudad" 
+          name="ciudad" 
+          type="text"
+          placeholder="Ej: Santiago"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+        />
+      </div>
+
+      <!-- Botones -->
+      <div class="flex gap-4">
+        <button 
+          type="submit"
+          [disabled]="cargando"
+          class="btn-primary"
+        >
+          {{ cargando ? '⏳ Guardando...' : (modoEdicion ? '💾 Actualizar' : '➕ Crear') }}
+        </button>
+
+        <button 
+          type="button"
+          class="btn-danger"
+          [disabled]="cargando"
+        >
+          ❌ Cancelar
+        </button>
+      </div>
+
+    </form>
+
+    <!-- Información útil -->
+    <div class="mt-8 p-4 bg-blue-50 rounded border-l-4 border-blue-500">
+      <p class="text-sm text-gray-700">
+        <strong>Nota:</strong> Los campos marcados con (*) son requeridos.
+      </p>
+    </div>
+
+  </div>
+</div>

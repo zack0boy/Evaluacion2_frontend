@@ -1,0 +1,1355 @@
+<div class="p-6 bg-gray-100 min-h-screen">
+  <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+    
+    <h2 class="text-3xl font-bold mb-6 text-blue-700">
+      {{ modoEdicion ? '✏️ Editar Cliente' : '➕ Crear Nuevo Cliente' }}
+    </h2>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="mensajeError" class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+      <p class="font-semibold">⚠️ {{ mensajeError }}</p>
+    </div>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="guardar()">
+      
+      <!-- RUT -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">RUT *</label>
+        <input 
+          [(ngModel)]="cliente.rut" 
+          name="rut" 
+          type="text"
+          placeholder="Ej: 12345678-9"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+          required
+        />
+      </div>
+
+      <!-- Nombre o Razón Social -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Nombre o Razón Social *</label>
+        <input 
+          [(ngModel)]="cliente.nombre_razon" 
+          name="nombre_razon" 
+          type="text"
+          placeholder="Ej: Mi Empresa S.A."
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+          required
+        />
+      </div>
+
+      <!-- Email -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Email *</label>
+        <input 
+          [(ngModel)]="cliente.email" 
+          name="email" 
+          type="email"
+          placeholder="Ej: info@empresa.com"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+          required
+        />
+      </div>
+
+      <!-- Teléfono -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Teléfono</label>
+        <input 
+          [(ngModel)]="cliente.telefono" 
+          name="telefono" 
+          type="text"
+          placeholder="Ej: +56912345678"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+        />
+      </div>
+
+      <!-- Dirección -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Dirección *</label>
+        <input 
+          [(ngModel)]="cliente.direccion" 
+          name="direccion" 
+          type="text"
+          placeholder="Ej: Calle Principal 123"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+          required
+        />
+      </div>
+
+      <!-- Ciudad -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold mb-2">Ciudad</label>
+        <input 
+          [(ngModel)]="cliente.ciudad" 
+          name="ciudad" 
+          type="text"
+          placeholder="Ej: Santiago"
+          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
+        />
+      </div>
+
+      <!-- Botones -->
+      <div class="flex gap-4">
+        <button 
+          type="submit"
+          [disabled]="cargando"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded transition disabled:bg-gray-400"
+        >
+          {{ cargando ? '⏳ Guardando...' : (modoEdicion ? '💾 Actualizar' : '➕ Crear') }}
+        </button>
+
+        <button 
+          type="button"
+          (click)="limpiar()"
+          class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-3 px-8 rounded transition"
+          [disabled]="cargando"
+        >
+          🔄 Limpiar
+        </button>
+
+        <button 
+          type="button"
+          (click)="cancelar()"
+          class="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-8 rounded transition"
+          [disabled]="cargando"
+        >
+          ❌ Cancelar
+        </button>
+      </div>
+
+    </form>
+
+    <!-- Información útil -->
+    <div class="mt-8 p-4 bg-blue-50 rounded border-l-4 border-blue-500">
+      <p class="text-sm text-gray-700">
+        <strong>Nota:</strong> Los campos marcados con (*) son requeridos.
+      </p>
+    </div>
+
+  </div>
+</div>
+------------------------------------------------------------------------------------------------------------------------
+
+
+<div class="p-6 bg-gray-100 min-h-screen">
+  <h2 class="text-2xl font-bold mb-4 text-blue-700">👥 Listado de Clientes</h2>
+
+  <div class="flex mb-4 gap-2">
+    <input [(ngModel)]="filtro" (input)="filtrarClientes()" placeholder="Buscar por RUT o nombre..." class="border p-2 rounded w-full"/>
+   <button (click)="crearCliente()" class="bg-blue-600 text-white px-4 py-2 rounded">
+    + Nuevo Cliente
+    </button>
+  </div>
+
+  <table class="table-auto w-full bg-white shadow-md rounded-lg" *ngIf="!cargando && clientesFiltrados.length > 0; else vacio">
+    <thead class="bg-blue-600 text-white">
+      <tr>
+        <th class="p-3">RUT</th>
+        <th class="p-3">Nombre</th>
+        <th class="p-3">Correo</th>
+        <th class="p-3 text-center">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let c of clientesFiltrados" class="border-b hover:bg-gray-50">
+        <td class="p-3">{{ c.rut }}</td>
+        <td class="p-3">{{ c.nombre_razon }}</td>
+        <td class="p-3">{{ c.email }}</td>
+        <td class="p-3 flex justify-center gap-2">
+          <button (click)="editarCliente(c.id_cliente)" class="bg-blue-500 text-white px-3 py-1 rounded">Editar</button>
+          <button (click)="eliminarCliente(c.id_cliente)" class="bg-red-500 text-white px-3 py-1 rounded">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #vacio>
+    <p *ngIf="!cargando" class="text-gray-500 text-center mt-6">{{ clientesFiltrados.length === 0 && filtro ? 'No hay clientes que coincidan con la búsqueda.' : 'No hay clientes registrados.' }}</p>
+    <p *ngIf="cargando" class="text-gray-500 text-center mt-6">⏳ Cargando clientes...</p>
+  </ng-template>
+</div>
+==========================================================================================================================
+
+<div class="container">
+  <h1>Panel de Gestión CGE</h1>
+<nav class="nav">
+  <button onclick="window.location.href='/clientes'" class="nav-link">👤 Clientes</button>
+  <button onclick="window.location.href='/boletas'" class="nav-link">🧾 Boletas</button>
+  <button onclick="window.location.href='/lecturas'" class="nav-link">📊 Lecturas</button>
+  <button onclick="window.location.href='/medidores'" class="nav-link">⚙️ Medidores</button>
+  <button onclick="window.location.href='/registros'" class="nav-link">📝 Registros</button>
+</nav>
+</div>
+ <router-outlet></router-outlet>
+
+===============================================================================================================0
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container {
+  padding: 2rem;
+  font-family: "Segoe UI", sans-serif;
+  color: #333;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  a {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: #f5f5f5;
+    color: #333;
+    transition: 0.2s;
+
+    &.active, &:hover {
+      background: #007bff;
+      color: white;
+    }
+  }
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  input {
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    padding: 0.5rem 1rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background: #0056b3;
+    }
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.7rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+
+  th {
+    background: #f9f9f9;
+  }
+
+  tr:hover {
+    background: #f1f7ff;
+  }
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #fafafa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.mensaje {
+  font-weight: bold;
+  color: #007bff;
+}
+
+==========================================================================================================================
+
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+export const routes: Routes = [
+  { path: '', redirectTo: 'clientes', pathMatch: 'full' },
+  { path: 'listar-medidores', redirectTo: 'medidores/listar' },
+  { path: 'nuevo-medidor', redirectTo: 'medidores/nuevo' },
+  { path: 'nuevo', redirectTo: 'clientes/nuevo' },
+  { path: 'clientes', loadChildren: () => import('./clientes/clientes.module').then(m => m.ClientesModule) },
+  { path: 'medidores', loadChildren: () => import('./medidores/medidores.module').then(m => m.MedidoresModule) },
+  { path: 'lecturas', loadChildren: () => import('./lecturas/lecturas.module').then(m => m.LecturasModule) },
+  { path: 'boletas', loadChildren: () => import('./boletas/boletas.module').then(m => m.BoletasModule) },
+  { path: 'registros', loadChildren: () => import('./registros/registros.module').then(m => m.RegistrosModule) },
+  { path: '**', redirectTo: 'clientes' }
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule {}
+
+==========================================================================================================================
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
+import { AppRoutingModule } from './app.routes';
+
+
+
+
+@NgModule({
+  declarations: [],
+  imports: [
+    CommonModule,
+    BrowserModule,
+    HttpClientModule,
+    AppRoutingModule,
+  ],
+})
+export class AppModule { }
+==========================================================================================================================
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface Registro {
+  id: number;
+  tipo: string;             
+  descripcion: string;      
+  operador: string;         // usuario responsable
+  fecha_registro: string;   // timestamp
+  id_objeto?: number;       // id del elemento relacionado (lectura/boleta)
+}
+
+@Injectable({ providedIn: 'root' })
+export class RegistrosService {
+  private apiUrl = 'http://localhost:8000/api/registros'; // Endpoint del backend
+
+  constructor(private http: HttpClient) {}
+
+  // Crear registro
+  crear(nuevoRegistro: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, nuevoRegistro);
+  }
+
+  // Listar todos los registros
+  listar(): Observable<Registro[]> {
+    return this.http.get<Registro[]>(this.apiUrl);
+  }
+
+  // Obtener registro por ID
+  obtener(id: number): Observable<Registro> {
+    return this.http.get<Registro>(`${this.apiUrl}/${id}`);
+  }
+
+  // Eliminar registro
+  eliminar(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  }
+}
+==========================================================================================================================
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+
+import { RegistrosRoutingModule } from './registros-routing.module';
+import { ListarRegistrosComponent } from './listar-registros/listar-registros.component';
+import { AgregarRegistroComponent } from './agregar-registro/agregar-registro.component';
+import { DetalleRegistroComponent } from './detalle-registro/detalle-registro.component';
+
+@NgModule({
+  declarations: [
+    ListarRegistrosComponent,
+    AgregarRegistroComponent,
+    DetalleRegistroComponent
+  ],
+  imports: [
+    CommonModule,
+    FormsModule, // ← AÑADIR FormsModule aquí
+    RouterModule,
+    RegistrosRoutingModule
+  ]
+})
+export class RegistrosModule { }
+
+
+=========================================================================================================================
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RegistrosService, Registro } from '../registros.service';
+
+@Component({
+  selector: 'app-listar-registros',
+  templateUrl: './listar-registros.component.html',
+  styleUrls: ['./listar-registros.component.scss']
+  // REMOVER: standalone: true,
+  // REMOVER: imports: [CommonModule, FormsModule]
+})
+export class ListarRegistrosComponent implements OnInit {
+  filtro: string = '';
+  cargando: boolean = false;
+  registros: Registro[] = [];
+
+  constructor(private registrosService: RegistrosService) {}
+
+  ngOnInit(): void {
+    this.cargarRegistros();
+  }
+
+  cargarRegistros(): void {
+    this.cargando = true;
+    this.registrosService.listar().subscribe({
+      next: (data: Registro[]) => {
+        this.registros = data;
+        this.cargando = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading registros:', error);
+        this.cargando = false;
+      }
+    });
+  }
+
+  // Retorna los registros filtrados por la cadena `filtro` (operador o descripción).
+  get registrosFiltrados(): Registro[] {
+    const q = (this.filtro || '').trim().toLowerCase();
+    if (!q) return this.registros;
+    return this.registros.filter(r => {
+      const operador = (r.operador || '').toString().toLowerCase();
+      const descripcion = (r.descripcion || '').toString().toLowerCase();
+      return operador.includes(q) || descripcion.includes(q);
+    });
+  }
+
+  verDetalle(id: number): void {
+    // TODO: Navigate to detail view
+    console.log('Ver detalle del registro:', id);
+  }
+
+  eliminar(id: number): void {
+    this.registrosService.eliminar(id).subscribe({
+      next: () => {
+        this.registros = this.registros.filter(r => r.id !== id);
+        console.log('Registro eliminado');
+      },
+      error: (error: any) => {
+        console.error('Error al eliminar:', error);
+      }
+    });
+  }
+
+  formatearFecha(fecha: string): string {
+    if (!fecha) return '-';
+    const d = new Date(fecha);
+    return d.toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' });
+  }
+}
+=====================================================================================================================
+<div *ngIf="registro">
+  <h2>Detalle del Registro #{{ registro.id || 'N/A' }}</h2>
+  <p><strong>Tipo:</strong> {{ registro.tipo || 'N/A' }}</p>
+  <p><strong>Descripción:</strong> {{ registro.descripcion || 'N/A' }}</p>
+  <p><strong>Operador:</strong> {{ registro.operador || 'N/A' }}</p>
+  <p><strong>Fecha:</strong> {{ registro.fecha_registro || 'N/A' }}</p>
+</div>
+
+<ng-template #cargando>
+  <p>Cargando...</p>
+</ng-template>
+====================================================================================================================
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { RegistrosService } from '../registros.service';
+
+@Component({
+  selector: 'app-agregar-registro',
+  templateUrl: './agregar-registro.component.html',
+  styleUrls: ['./agregar-registro.component.scss']
+})
+export class AgregarRegistroComponent {
+  nuevoRegistro = {
+    tipo: '',
+    descripcion: '',
+    operador: '',
+    fecha_registro: ''
+  };
+
+  mensaje = '';
+  cargando = false;
+
+  constructor(
+    private registrosService: RegistrosService,
+    private router: Router
+  ) {}
+
+  guardar(): void {
+    if (!this.nuevoRegistro.tipo || !this.nuevoRegistro.descripcion || !this.nuevoRegistro.operador) {
+      this.mensaje = 'Por favor completa todos los campos obligatorios.';
+      return;
+    }
+
+    this.cargando = true;
+    this.mensaje = '';
+
+    // Si no se asigna fecha, usar la actual
+    if (!this.nuevoRegistro.fecha_registro) {
+      this.nuevoRegistro.fecha_registro = new Date().toISOString();
+    }
+
+    (this.registrosService.crear(this.nuevoRegistro) as any).subscribe({
+      next: (res: any) => {
+        console.log('Registro creado:', res);
+        this.mensaje = 'Registro creado correctamente.';
+        this.cargando = false;
+
+        // Redirige al listado
+        setTimeout(() => this.router.navigate(['/']), 1200);
+      },
+      error: (err: any) => {
+        console.error('Error al crear registro:', err);
+        this.mensaje = 'Error al guardar el registro.';
+        this.cargando = false;
+      }
+    });
+  }
+}
+=========================================================================================================================
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MedidoresService {
+  private apiUrl = 'http://localhost:8000/api/medidores'; // Endpoint correcto del backend
+
+  constructor(private http: HttpClient) {}
+
+  // Obtener todos los medidores
+  obtenerMedidores(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/`);
+  }
+
+  // Obtener medidor por ID
+  obtenerMedidorPorId(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/`);
+  }
+
+  // Obtener medidores por cliente
+  obtenerMedidoresPorCliente(clienteId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/cliente/${clienteId}/`);
+  }
+
+  // Crear medidor
+  crearMedidor(medidor: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/`, medidor);
+  }
+
+  // Actualizar medidor
+  actualizarMedidor(id: number, medidor: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/`, medidor);
+  }
+
+  // Eliminar medidor
+  eliminarMedidor(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}/`);
+  }
+}
+======================================================================================================================
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { MedidoresService } from './medidores.service';
+
+@Component({
+  selector: 'app-medidores',
+  standalone: true,
+  imports: [CommonModule, FormsModule, HttpClientModule],
+  providers: [MedidoresService],
+  templateUrl: './medidores.component.html',
+  styleUrls: ['./medidores.component.scss']
+})
+export class MedidoresComponent implements OnInit {
+  busqueda: string = '';
+  medidores: any[] = [];
+  // Use id_cliente in the shape sent to the backend; keep cliente for display if present
+  medidorActual: any = { id_medidor: 0, codigo_medidor: '', id_cliente: null, cliente: null, direccion_suministro: '', estado: true };
+  modoEdicion: boolean = false;
+
+  constructor(private medidoresService: MedidoresService) {}
+
+  ngOnInit(): void {
+    this.cargarMedidores();
+  }
+
+  cargarMedidores(): void {
+    this.medidoresService.obtenerMedidores().subscribe({
+      next: (data: any) => {
+        // backend may return a plain array or a paginated object
+        if (Array.isArray(data)) {
+          this.medidores = data;
+        } else {
+          this.medidores = data.items || data || [];
+        }
+      },
+      error: (err: any) => console.error('Error al cargar medidores:', err)
+    });
+  }
+
+  filtrarMedidores(): void {
+    if (!this.busqueda.trim()) {
+      this.cargarMedidores();
+      return;
+    }
+
+    const termino = this.busqueda.toLowerCase();
+    this.medidores = this.medidores.filter(m =>
+      String(m.codigo_medidor).toLowerCase().includes(termino) ||
+      String(m.cliente?.nombre_razon).toLowerCase().includes(termino)
+    );
+  }
+
+  crearMedidor(): void {
+    if (!this.medidorActual.codigo_medidor) {
+      alert('Debe ingresar el código del medidor');
+      return;
+    }
+
+    // Ensure we build a payload that matches backend expectations
+    const payload: any = {
+      codigo_medidor: this.medidorActual.codigo_medidor,
+      id_cliente: this.medidorActual.id_cliente ?? (this.medidorActual.cliente ? this.medidorActual.cliente.id_cliente : null),
+      direccion_suministro: this.medidorActual.direccion_suministro ?? '',
+      estado: this.medidorActual.estado ?? 'activo'
+    };
+
+    this.medidoresService.crearMedidor(payload).subscribe({
+      next: (res: any) => {
+        console.log('Medidor creado:', res);
+        this.cargarMedidores();
+        this.limpiarFormulario();
+      },
+      error: (err: any) => console.error('Error al crear medidor:', err)
+    });
+  }
+
+  editarMedidor(id: number): void {
+    const medidor = this.medidores.find(m => m.id_medidor === id);
+    if (medidor) {
+      // Keep both id_cliente and cliente object if available
+      this.medidorActual = { ...medidor, id_cliente: medidor.id_cliente ?? medidor.cliente?.id_cliente };
+      this.modoEdicion = true;
+    }
+  }
+
+  guardarMedidor(): void {
+    const payload = {
+      codigo_medidor: this.medidorActual.codigo_medidor,
+      id_cliente: this.medidorActual.id_cliente ?? (this.medidorActual.cliente ? this.medidorActual.cliente.id_cliente : null),
+      direccion_suministro: this.medidorActual.direccion_suministro ?? '',
+      estado: this.medidorActual.estado ?? 'activo'
+    };
+
+    this.medidoresService.actualizarMedidor(this.medidorActual.id_medidor, payload).subscribe({
+      next: (res: any) => {
+        console.log('Medidor actualizado:', res);
+        this.cargarMedidores();
+        this.limpiarFormulario();
+      },
+      error: (err: any) => console.error('Error al actualizar medidor:', err)
+    });
+  }
+
+  eliminarMedidor(id: number): void {
+    if (confirm('¿Está seguro de eliminar este medidor?')) {
+      this.medidoresService.eliminarMedidor(id).subscribe({
+        next: (res: any) => {
+          console.log('Medidor eliminado:', res);
+          this.cargarMedidores();
+        },
+        error: (err: any) => console.error('Error al eliminar medidor:', err)
+      });
+    }
+  }
+
+  limpiarFormulario(): void {
+    this.medidorActual = { id_medidor: 0, codigo_medidor: '', id_cliente: null, cliente: null, direccion_suministro: '', estado: true };
+    this.modoEdicion = false;
+  }
+}
+===============================================================================================================
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MedidoresService } from '../medidores.service';
+import { ClienteService } from '../../clientes/clientes.service';
+import { ActivatedRoute, Router } from '@angular/router';
+
+@Component({
+  selector: 'app-medidor-form',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './medidor-form.component.html',
+  styleUrls: ['./medidor-form.component.scss']
+})
+export class MedidorFormComponent implements OnInit {
+  // Formulario (usar el nombre que espera el backend: id_cliente)
+  medidor = {
+    codigo_medidor: '',
+    id_cliente: null as number | null,
+    direccion_suministro: '',
+    estado: true
+  };
+
+  // Variables de estado
+  modoEdicion = false;
+  medidorId: number | null = null;
+  cargando = false;
+  clientes: any[] = [];
+
+  constructor(
+    private medidoresService: MedidoresService,
+    private clienteService: ClienteService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    // Cargar lista de clientes
+    this.cargarClientes();
+
+    // Si viene con ID en la ruta, es edición
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.medidorId = +params['id'];
+        this.modoEdicion = true;
+        this.cargarMedidorParaEditar();
+      }
+    });
+  }
+
+  // Cargar lista de clientes disponibles
+  cargarClientes(): void {
+    this.clienteService.obtenerClientes().subscribe({
+      next: (data: any) => {
+        this.clientes = data.items || data;
+      },
+      error: (error) => console.error('Error al cargar clientes:', error)
+    });
+  }
+
+  // Cargar medidor para editar
+  cargarMedidorParaEditar(): void {
+    if (this.medidorId) {
+      this.cargando = true;
+      this.medidoresService.obtenerMedidorPorId(this.medidorId).subscribe({
+        next: (data) => {
+          // Mapear la respuesta al shape del formulario (asegurar id_cliente)
+          this.medidor = {
+            codigo_medidor: data.codigo_medidor,
+            id_cliente: data.id_cliente ?? null,
+            direccion_suministro: data.direccion_suministro ?? '',
+            estado: data.estado ?? true
+          };
+          this.cargando = false;
+        },
+        error: (error) => {
+          console.error('Error al cargar medidor:', error);
+          this.cargando = false;
+        }
+      });
+    }
+  }
+
+  // Validar datos antes de enviar
+  validar(): boolean {
+    if (!this.medidor.codigo_medidor || this.medidor.codigo_medidor.trim() === '') {
+      alert('El código del medidor es requerido');
+      return false;
+    }
+
+    if (!this.medidor.id_cliente || this.medidor.id_cliente <= 0) {
+      alert('Debe seleccionar un cliente válido');
+      return false;
+    }
+
+    if (!this.medidor.direccion_suministro || this.medidor.direccion_suministro.trim() === '') {
+      alert('La dirección de suministro es requerida');
+      return false;
+    }
+
+    return true;
+  }
+
+  // Guardar (crear o actualizar)
+  guardar(): void {
+    if (!this.validar()) {
+      return;
+    }
+
+    this.cargando = true;
+
+    if (this.modoEdicion && this.medidorId) {
+      // Actualizar medidor
+      this.medidoresService.actualizarMedidor(this.medidorId, this.medidor).subscribe({
+        next: (respuesta) => {
+          console.log('✅ Medidor actualizado:', respuesta);
+          alert('Medidor actualizado correctamente');
+          this.router.navigate(['/medidores']);
+        },
+        error: (error) => {
+          console.error('❌ Error al actualizar:', error);
+          alert('Error: ' + (error.error?.detail || 'No se pudo actualizar'));
+          this.cargando = false;
+        }
+      });
+    } else {
+      // Crear nuevo medidor
+      this.medidoresService.crearMedidor(this.medidor).subscribe({
+        next: (respuesta) => {
+          console.log('✅ Medidor creado:', respuesta);
+          alert('Medidor creado correctamente');
+          this.router.navigate(['/medidores']);
+        },
+        error: (error) => {
+          console.error('❌ Error al crear:', error);
+          alert('Error: ' + (error.error?.detail || 'No se pudo crear'));
+          this.cargando = false;
+        }
+      });
+    }
+  }
+
+  // Cancelar
+  cancelar(): void {
+    this.router.navigate(['/medidores']);
+  }
+
+  // Limpiar formulario
+  limpiar(): void {
+    this.medidor = {
+      codigo_medidor: '',
+      id_cliente: null,
+      direccion_suministro: '',
+      estado: true
+    };
+  }
+}
+
+=====================================================================================================================
+<div class="p-6 bg-gray-100 min-h-screen">
+  <h2 class="text-2xl font-bold mb-4 text-blue-700">⚙️ Medidores</h2>
+
+ <div class="flex mb-4 gap-2">
+    <input placeholder="Buscar por código o cliente..." class="border p-2 rounded w-full"/>
+   <button class="bg-blue-600 text-white px-4 py-2 rounded">
+    <a href="/nuevo-medidor">+ Nuevo</a>
+    </button>
+  </div>
+
+  <table class="table-auto w-full bg-white shadow-md rounded-lg" *ngIf="medidores.length > 0; else sinMedidores">
+    <thead class="bg-blue-600 text-white">
+      <tr>
+        <th class="p-3">Código</th>
+        <th class="p-3">Cliente</th>
+        <th class="p-3">Dirección</th>
+        <th class="p-3">Estado</th>
+        <th class="p-3 text-center">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of medidores" class="border-b hover:bg-gray-50">
+        <td class="p-3">{{ m.codigo_medidor }}</td>
+        <td class="p-3">{{ m.cliente?.nombre_razon }}</td>
+        <td class="p-3">{{ m.direccion_suministro }}</td>
+        <td class="p-3">{{ m.estado ? 'Activo' : 'Inactivo' }}</td>
+        <td class="p-3 flex justify-center gap-2">
+          <button (click)="editarMedidor(m.id_medidor)" class="bg-blue-500 text-white px-3 py-1 rounded">Editar</button>
+          <button (click)="eliminarMedidor(m.id_medidor)" class="bg-red-500 text-white px-3 py-1 rounded">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #sinMedidores>
+    <p class="text-gray-500 text-center mt-6">No hay medidores registrados.</p>
+  </ng-template>
+</div>
+=====================================================================================================================
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class LecturasService {
+  private apiUrl = 'http://localhost:8000/api/lecturas'; // Endpoint del backend
+
+  constructor(private http: HttpClient) { }
+
+  // Crear lectura
+  crearLectura(lectura: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, lectura);
+  }
+
+  // Obtener lecturas por medidor
+  obtenerLecturasPorMedidor(medidorId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/medidor/${medidorId}`);
+  }
+}
+==========================================================================================================================
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ClienteService {
+  private apiUrl = 'http://localhost:8000/api/clientes'; // Endpoint base del backend (usamos slash al construir URLs cuando se necesita)
+
+  constructor(private http: HttpClient) {}
+
+  // Obtener clientes con búsqueda opcional
+  obtenerClientes(rut?: string, nombre?: string, page: number = 1, limit: number = 10): Observable<any> {
+    let params = new HttpParams();
+    if (rut) params = params.set('rut', rut);
+    if (nombre) params = params.set('nombre_razon', nombre);
+    params = params.set('page', page.toString());
+    params = params.set('limit', limit.toString());
+    
+    // Aseguramos la barra final para evitar redirecciones que puedan eliminar encabezados CORS
+    return this.http.get<any>(`${this.apiUrl}/`, { params });
+  }
+
+  // Obtener cliente por ID
+  obtenerClientePorId(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/`);
+  }
+
+  // Crear cliente
+  crearCliente(cliente: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/`, cliente);
+  }
+
+  // Actualizar cliente
+  actualizarCliente(id: number, cliente: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/`, cliente);
+  }
+
+  // Eliminar cliente
+  eliminarCliente(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}/`);
+  }
+}
+======================================================================================================================
+const routes: Routes = [
+  { path: '', component: ListarClientesComponent },
+  { path: 'nuevo', component: ClienteFormComponent },
+  { path: 'editar/:id', component: ClienteFormComponent },
+  { path: ':id', component: ClienteDetailComponent },
+];
+==============================================================================================
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ClienteService } from '../clientes.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-listar-clientes',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './listar-clientes.component.html',
+  styleUrls: ['./listar-clientes.component.scss']
+})
+export class ListarClientesComponent implements OnInit {
+  filtro = '';
+  clientes: any[] = [];
+  clientesFiltrados: any[] = [];
+  cargando = false;
+
+  constructor(private clienteService: ClienteService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.cargarClientes();
+  }
+
+  cargarClientes(): void {
+    this.cargando = true;
+    this.clienteService.obtenerClientes().subscribe({
+      next: (data: any) => {
+        this.clientes = data.items || data;
+        this.clientesFiltrados = this.clientes;
+        this.cargando = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar clientes:', error);
+        this.cargando = false;
+      }
+    });
+  }
+
+  filtrarClientes(): void {
+    const termino = (this.filtro || '').trim().toLowerCase();
+    if (!termino) {
+      this.clientesFiltrados = this.clientes;
+      return;
+    }
+    this.clientesFiltrados = this.clientes.filter(c =>
+      String(c.rut).toLowerCase().includes(termino) ||
+      String(c.nombre_razon).toLowerCase().includes(termino) ||
+      String(c.email).toLowerCase().includes(termino)
+    );
+  }
+
+  crearCliente(): void {
+    this.router.navigate(['/clientes/nuevo']);
+  }
+
+  editarCliente(id: number): void {
+    this.router.navigate(['/clientes/editar', id]);
+  }
+
+  eliminarCliente(id: number): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
+      this.clienteService.eliminarCliente(id).subscribe({
+        next: () => {
+          console.log('✅ Cliente eliminado');
+          this.cargarClientes();
+          alert('Cliente eliminado correctamente');
+        },
+        error: (error) => {
+          console.error('❌ Error:', error);
+          alert('Error: ' + (error.error?.detail || 'No se pudo eliminar'));
+        }
+      });
+    }
+  }
+}=============================================================================================
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ClienteService } from '../clientes.service';
+import { ActivatedRoute, Router } from '@angular/router';
+
+@Component({
+  selector: 'app-cliente-form',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './cliente-form.component.html',
+  styleUrls: ['./cliente-form.component.scss']
+})
+export class ClienteFormComponent implements OnInit {
+  // Formulario
+  cliente = {
+    rut: '',
+    nombre_razon: '',
+    email: '',
+    telefono: '',
+    direccion: '',
+    ciudad: ''
+  };
+
+  // Variables de estado
+  modoEdicion = false;
+  clienteId: number | null = null;
+  cargando = false;
+  mensajeError = '';
+
+  constructor(
+    private clienteService: ClienteService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    // Si viene con ID en la ruta, es edición
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.clienteId = +params['id'];
+        this.modoEdicion = true;
+        this.cargarClienteParaEditar();
+      }
+    });
+  }
+
+  // Cargar cliente para editar
+  cargarClienteParaEditar(): void {
+    if (this.clienteId) {
+      this.cargando = true;
+      this.clienteService.obtenerClientePorId(this.clienteId).subscribe({
+        next: (data) => {
+          // Mapear campos del backend a los nombres usados en el formulario
+          this.cliente = {
+            rut: data.rut,
+            nombre_razon: data.nombre_razon,
+            email: data.email_contacto,
+            telefono: data.telefono || '',
+            direccion: data.direccion_facturacion || '',
+            ciudad: ''
+          };
+          this.cargando = false;
+        },
+        error: (error) => {
+          console.error('Error al cargar cliente:', error);
+          this.mensajeError = 'No se pudo cargar el cliente';
+          this.cargando = false;
+        }
+      });
+    }
+  }
+
+  // Validar datos antes de enviar
+  validar(): boolean {
+    if (!this.cliente.rut || this.cliente.rut.trim() === '') {
+      this.mensajeError = 'El RUT es requerido';
+      return false;
+    }
+
+    if (!this.cliente.nombre_razon || this.cliente.nombre_razon.trim() === '') {
+      this.mensajeError = 'El nombre o razón social es requerido';
+      return false;
+    }
+
+    if (!this.cliente.email || this.cliente.email.trim() === '') {
+      this.mensajeError = 'El email es requerido';
+      return false;
+    }
+
+    if (!this.validarEmail(this.cliente.email)) {
+      this.mensajeError = 'El email no tiene un formato válido';
+      return false;
+    }
+
+    if (!this.cliente.direccion || this.cliente.direccion.trim() === '') {
+      this.mensajeError = 'La dirección es requerida';
+      return false;
+    }
+
+    return true;
+  }
+
+  // Validar formato de email
+  validarEmail(email: string): boolean {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
+
+  // Guardar (crear o actualizar)
+  guardar(): void {
+    this.mensajeError = '';
+
+    if (!this.validar()) {
+      return;
+    }
+
+    this.cargando = true;
+
+    // Construir el payload con los nombres que espera el backend
+    const payload = {
+      rut: this.cliente.rut,
+      nombre_razon: this.cliente.nombre_razon,
+      email_contacto: this.cliente.email,
+      telefono: this.cliente.telefono || null,
+      direccion_facturacion: this.cliente.direccion || null,
+      estado: 'activo'
+    };
+
+    if (this.modoEdicion && this.clienteId) {
+      // Actualizar cliente (backend admite campos opcionales)
+      this.clienteService.actualizarCliente(this.clienteId, payload).subscribe({
+        next: (respuesta) => {
+          console.log('✅ Cliente actualizado:', respuesta);
+          alert('Cliente actualizado correctamente');
+          this.router.navigate(['/clientes']);
+        },
+        error: (error) => {
+          console.error('❌ Error al actualizar:', error);
+          this.mensajeError = 'Error: ' + (error.error?.detail || 'No se pudo actualizar');
+          this.cargando = false;
+        }
+      });
+    } else {
+      // Crear nuevo cliente
+      this.clienteService.crearCliente(payload).subscribe({
+        next: (respuesta) => {
+          console.log('✅ Cliente creado:', respuesta);
+          alert(`Cliente "${respuesta.nombre_razon}" creado correctamente`);
+          this.router.navigate(['/clientes']);
+        },
+        error: (error) => {
+          console.error('❌ Error al crear:', error);
+          // Mostrar detalle si existe (p. ej. validación de Pydantic)
+          this.mensajeError = 'Error: ' + (error.error?.detail || JSON.stringify(error.error) || 'No se pudo crear');
+          this.cargando = false;
+        }
+      });
+    }
+  }
+
+  // Cancelar
+  cancelar(): void {
+    this.router.navigate(['/clientes']);
+  }
+
+  // Limpiar formulario
+  limpiar(): void {
+    this.cliente = {
+      rut: '',
+      nombre_razon: '',
+      email: '',
+      telefono: '',
+      direccion: '',
+      ciudad: ''
+    };
+    this.mensajeError = '';
+  }
+}
+========================================================================================================================
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BoletasService {
+  private apiUrl = 'http://localhost:8000/api/boletas'; // Endpoint del backend
+
+  constructor(private http: HttpClient) { }
+
+  // Crear boleta
+  crearBoleta(boleta: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, boleta);
+  }
+
+  // Obtener boletas por cliente
+  obtenerBoletasPorCliente(clienteId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/cliente/${clienteId}`);
+  }
+
+  // Obtener boletas por mes y año
+  obtenerBoletasPorMes(anio: number, mes: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/mes/${anio}/${mes}`);
+  }
+
+  // Obtener datos de boleta para correo
+  obtenerDatosBoleta(boletaId: number): Observable<any> {
+    return this.http.get<any>(`http://localhost:8000/correo/boleta/${boletaId}/datos`);
+  }
+
+  // Enviar boleta por correo
+  enviarBoletaPorCorreo(boletaId: number, datos: any): Observable<any> {
+    return this.http.post<any>(`http://localhost:8000/correo/boleta/${boletaId}/enviar`, datos);
+  }
+}
+==================================================================================================================
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+
+@Component({
+  selector: 'app-listar-boletas',
+  standalone: true,
+  imports: [CommonModule, RouterModule, HttpClientModule],
+  templateUrl: './listar-boletas.component.html',
+  styleUrls: ['./listar-boletas.component.scss']
+})
+export class ListarBoletasComponent implements OnInit {
+  boletas: any[] = [];
+  cargando = false;
+
+  ngOnInit(): void {
+    this.cargarBoletas();
+  }
+
+  cargarBoletas(): void {
+    this.cargando = true;
+    // Aquí va el servicio real (ejemplo temporal)
+    this.boletas = [
+      { id: 1, cliente: 'Juan Pérez', monto: 25000, fecha: '2025-11-10' },
+      { id: 2, cliente: 'María López', monto: 37000, fecha: '2025-11-11' }
+    ];
+    this.cargando = false;
+  }
+
+  verDetalle(id: number): void {
+    console.log('Ver detalle de boleta', id);
+  }
+}
+=====================================================================================================================
+<div class="p-6 bg-gray-100 min-h-screen">
+  <h2 class="text-2xl font-bold mb-4 text-blue-700">📋 Listado de Boletas</h2>
+  <input type="text" placeholder="Buscar por RUT o Cliente..." class="border p-2 rounded w-full mb-4"/>
+
+  <table class="table-auto w-full bg-white shadow-md rounded-lg">
+    <thead class="bg-blue-600 text-white">
+      <tr>
+        <th class="p-3">Cliente</th>
+        <th class="p-3">Mes/Año</th>
+        <th class="p-3">Total</th>
+        <th class="p-3">Estado</th>
+        <th class="p-3 text-center">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-b hover:bg-gray-50">
+        <td class="p-3">Juan Pérez</td>
+        <td class="p-3">Octubre 2025</td>
+        <td class="p-3">$45.600</td>
+        <td class="p-3">Emitida</td>
+        <td class="p-3 flex justify-center gap-2">
+          <button class="bg-blue-500 text-white px-3 py-1 rounded">Ver</button>
+          <button class="bg-green-500 text-white px-3 py-1 rounded">Descargar</button>
+          <button class="bg-red-500 text-white px-3 py-1 rounded">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+=====================================================================================================================
+<div class="p-6 bg-gray-100 min-h-screen">
+  <h2 class="text-2xl font-bold mb-4 text-blue-700">🧾 Detalle de Boleta</h2>
+  <div class="bg-white shadow-md rounded-lg p-6">
+    <p><strong>Cliente:</strong> {{ boleta.cliente }}</p>
+    <p><strong>Fecha:</strong> {{ boleta.fecha }}</p>
+    <p><strong>Estado:</strong> {{ boleta.estado }}</p>
+    <p><strong>Total:</strong> ${{ boleta.monto }}</p>
+
+    <div class="mt-6">
+      <button class="bg-blue-500 text-white px-4 py-2 rounded">Descargar PDF</button>
+      <button class="bg-green-500 text-white px-4 py-2 rounded">Enviar por Correo</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,71 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Medidores</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<div class="page-container">
+  <div class="card">
+
+    <!-- Título -->
+    <h2 class="text-2xl font-bold mb-4 text-blue-700">⚙️ Medidores</h2>
+
+    <!-- Barra de búsqueda -->
+    <div class="flex mb-4 gap-2">
+      <input 
+        placeholder="Buscar por código o cliente..." 
+        class="border p-2 rounded w-full"
+      />
+      <button class="btn-primary">
+        <a href="/nuevo-medidor" class="text-white">+ Nuevo</a>
+      </button>
+    </div>
+
+    <!-- Tabla de datos -->
+    <table 
+      class="table-auto w-full bg-white shadow-md rounded-lg"
+      *ngIf="medidores.length > 0; else sinMedidores"
+    >
+      <thead class="bg-blue-600 text-white">
+        <tr>
+          <th class="p-3">Código</th>
+          <th class="p-3">Cliente</th>
+          <th class="p-3">Dirección</th>
+          <th class="p-3">Estado</th>
+          <th class="p-3 text-center">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let m of medidores" class="border-b hover:bg-gray-50">
+          <td class="p-3">{{ m.codigo_medidor }}</td>
+          <td class="p-3">{{ m.cliente?.nombre_razon }}</td>
+          <td class="p-3">{{ m.direccion_suministro }}</td>
+          <td class="p-3">{{ m.estado ? 'Activo' : 'Inactivo' }}</td>
+          <td class="p-3 flex justify-center gap-2">
+            <button 
+              (click)="editarMedidor(m.id_medidor)" 
+              class="btn-primary py-1 px-3"
+            >
+              Editar
+            </button>
+            <button 
+              (click)="eliminarMedidor(m.id_medidor)" 
+              class="btn-danger py-1 px-3"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Mensaje si no hay medidores -->
+    <ng-template #sinMedidores>
+      <p class="text-gray-500 text-center mt-6">
+        No hay medidores registrados.
+      </p>
+    </ng-template>
+
+  </div>
+</div>
