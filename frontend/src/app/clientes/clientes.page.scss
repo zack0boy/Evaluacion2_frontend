@@ -16,7 +16,7 @@
   animation: fadeIn 0.4s ease;
 }
 
-/* Inputs */
+/* Inputs dentro de la tarjeta */
 .card input {
   transition: all 0.2s ease;
   border-radius: 10px;
@@ -27,13 +27,13 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-/* Labels */
+/* Labels dentro de la tarjeta */
 .card label {
   font-weight: 600;
   opacity: 0.85;
 }
 
-/* Botones */
+/* Botones principales */
 .btn-primary {
   background: #2563eb;
   padding: 12px 28px;
@@ -41,6 +41,7 @@
   color: #fff;
   font-weight: 600;
   transition: 0.25s ease;
+  border: none;
 }
 
 .btn-primary:hover {
@@ -55,11 +56,19 @@
   color: #fff;
   font-weight: 600;
   transition: 0.25s ease;
-}/* Animación suave de entrada */
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+/* Animación suave de entrada */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
@@ -67,15 +76,26 @@
   }
 }
 
-/* Contenedor principal (la tarjeta blanca) */
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Contenedor principal (la tarjeta blanca de Ionic que tenías) */
 .max-w-2xl {
   animation: fadeIn 0.4s ease;
   border-radius: 20px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   border: 1px solid #e5e7eb;
 }
 
-/* Input: efectos suaves */
+/* Input: efectos suaves (global) */
 input {
   background: #f9fafb;
   border: 1px solid #d1d5db;
@@ -92,34 +112,37 @@ input:focus {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
-/* Labels más bonitos */
+/* Labels más bonitos (global) */
 label {
   color: #374151;
 }
 
-/* Botones */
+/* Botones (global) */
 button {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
 button:disabled {
   cursor: not-allowed;
+  background: #9ca3af !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-/* Tarjeta de información */
+/* Tarjeta de información (nota azul) */
 .bg-blue-50 {
   border-radius: 10px;
   border-left-width: 6px !important;
 }
 
-/* Mensaje de error */
+/* Mensaje de error (rojo) */
 .bg-red-100 {
-  animation: fadeIn 0.3s ease;
+  animation: fadeDown 0.3s ease;
   border-radius: 10px;
   border-left-width: 6px !important;
 }
@@ -129,19 +152,7 @@ button:disabled {
   background: linear-gradient(135deg, #eef2ff, #f8fafc);
 }
 
-
-.btn-danger:hover {
-  background: #b91c1c;
-  transform: translateY(-1px);
-}
-
-button[disabled] {
-  background: #9ca3af !important;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-/* Error */
+/* Caja de error personalizada */
 .error-box {
   background: #fee2e2;
   border-left: 4px solid #dc2626;
@@ -152,13 +163,100 @@ button[disabled] {
   animation: fadeDown 0.3s ease;
 }
 
-/* Animaciones */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ============================= */
+/*   SECCIÓN LISTA DE CLIENTES   */
+/* ============================= */
+
+/* Título de la lista */
+.card h2 {
+  margin-top: 32px;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
 }
 
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Tabla de clientes */
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  background: #ffffff;
+  color: #111827; /* texto bien visible */
+  font-size: 0.9rem;
+}
+
+/* Encabezado */
+.card thead {
+  background-color: #eef2ff;
+}
+
+.card th {
+  font-weight: 600;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+/* Celdas */
+.card td {
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Filas alternadas y hover */
+.card tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.card tbody tr:hover {
+  background: #e5f0ff;
+}
+
+/* Para que la tabla tenga aire dentro de la card */
+.card hr {
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+/* Ajuste para botones dentro de la tabla */
+.card td .btn-primary,
+.card td .btn-danger {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
+/* Contenedor que centra la tabla */
+.lista-clientes-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* La tabla tendrá un ancho limitado para verse elegante */
+.lista-clientes-table {
+  width: 40%;         /* Ajustable: 100%, 80%, 70%, etc. */
+  max-width: 900px;   /* Evita que se haga gigante */
+}
+/* Card de la lista de clientes */
+.card-lista {
+  margin-top: 24px;
+}
+
+/* Contenedor que centra la tabla */
+.card-lista .overflow-x-auto {
+  display: flex;
+  justify-content: center; /* centra el contenido horizontalmente */
+}
+
+/* Tabla más angosta y centrada */
+.tabla-clientes {
+  width: 80%;        /* ajusta: 100%, 80%, 70% según te guste */
+  max-width: 900px;  /* evita que se haga gigante en pantallas grandes */
+}
+
+.card-lista {
+  padding-top: 04px !important;   /* antes 32px */
+  padding-bottom: 24px;
 }

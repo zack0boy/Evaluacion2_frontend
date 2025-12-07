@@ -6,6 +6,8 @@
 </ion-header>
 
 <div class="page-container">
+  
+  <!-- CARD 1: FORMULARIO -->
   <div class="card">
 
     <!-- Mensaje de error -->
@@ -46,8 +48,8 @@
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-2">Email *</label>
         <input 
-          [(ngModel)]="cliente.email" 
-          name="email" 
+          [(ngModel)]="cliente.email_contacto" 
+          name="email_contacto" 
           type="email"
           placeholder="Ej: info@empresa.com"
           class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
@@ -71,8 +73,8 @@
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-2">Dirección *</label>
         <input 
-          [(ngModel)]="cliente.direccion" 
-          name="direccion" 
+          [(ngModel)]="cliente.direccion_facturacion" 
+          name="direccion_facturacion" 
           type="text"
           placeholder="Ej: Calle Principal 123"
           class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
@@ -106,6 +108,7 @@
           type="button"
           class="btn-danger"
           [disabled]="cargando"
+          (click)="cancelar()"
         >
           ❌ Cancelar
         </button>
@@ -121,4 +124,66 @@
     </div>
 
   </div>
+
+  <!-- CARD 2: LISTA DE CLIENTES -->
+  <div class="card card-lista">
+
+    <!-- Título lista -->
+    <h2 class="text-lg font-semibold mb-4">Lista de clientes</h2>
+
+    <!-- Estado de carga -->
+    <div *ngIf="cargando" class="text-sm text-gray-500 mb-2">
+      Cargando clientes...
+    </div>
+
+    <!-- Sin datos -->
+    <div *ngIf="!cargando && clientes.length === 0" class="text-sm text-gray-500">
+      No hay clientes registrados.
+    </div>
+
+    <!-- Tabla de clientes -->
+    <div *ngIf="clientes.length > 0" class="overflow-x-auto">
+      <table class="tabla-clientes border border-gray-200 text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="p-2 border border-gray-200 text-left">RUT</th>
+            <th class="p-2 border border-gray-200 text-left">Nombre / Razón</th>
+            <th class="p-2 border border-gray-200 text-left">Email</th>
+            <th class="p-2 border border-gray-200 text-left">Teléfono</th>
+            <th class="p-2 border border-gray-200 text-left">Dirección</th>
+            <th class="p-2 border border-gray-200 text-left">Ciudad</th>
+            <th class="p-2 border border-gray-200 text-left">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of clientes" class="hover:bg-gray-50">
+            <td class="p-2 border border-gray-200">{{ c.rut }}</td>
+            <td class="p-2 border border-gray-200">{{ c.nombre_razon }}</td>
+            <td class="p-2 border border-gray-200">{{ c.email_contacto }}</td>
+            <td class="p-2 border border-gray-200">{{ c.telefono }}</td>
+            <td class="p-2 border border-gray-200">{{ c.direccion_facturacion }}</td>
+            <td class="p-2 border border-gray-200">{{ c.ciudad }}</td>
+            <td class="p-2 border border-gray-200">
+              <button 
+                type="button" 
+                class="btn-primary mr-2"
+                (click)="editarCliente(c)"
+              >
+                ✏️ Editar
+              </button>
+              <button 
+                type="button" 
+                class="btn-danger"
+                (click)="eliminarCliente(c.id_cliente || c.id)"
+              >
+                🗑 Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
 </div>
