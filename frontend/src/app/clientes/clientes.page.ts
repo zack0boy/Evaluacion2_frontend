@@ -4,14 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { IonContent } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-clientes',
   templateUrl: './clientes.page.html',
   styleUrls: ['./clientes.page.scss'],
   standalone: true,
-  imports: [IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, HttpClientModule],
-})
+  imports: [IonContent,IonHeader,IonTitle,IonToolbar,CommonModule,FormsModule,HttpClientModule]})
 export class ClientesPage implements OnInit {
 
   // URL base del backend (FastAPI)

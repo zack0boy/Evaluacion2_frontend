@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>🗺 Mapa de Medidores</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+  <!-- CARD SUPERIOR -->
+  <div class="top-card">
+    <h2>Visualización de Medidores</h2>
+
+    <div class="controls">
+      <button class="btn-primary" (click)="centrarEnUsuario()">
+        📍 Mi Ubicación
+      </button>
+      <button class="btn-secondary" onclick="window.location.href='/home'">
+        🔄 Volver
+      </button>
+    </div>
+  </div>
+
+  <!-- MAPA -->
+  <div id="map"></div>
+
+</ion-content>

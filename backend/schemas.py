@@ -7,6 +7,7 @@ from decimal import Decimal
 # CLIENTE
 # ==========================================================
 
+
 class ClienteBase(BaseModel):
 
     rut: Annotated[str, constr(strip_whitespace=True, min_length=8, max_length=12)]
@@ -18,11 +19,13 @@ class ClienteBase(BaseModel):
 
     @validator('rut')
     def validar_rut_chileno(cls, v):
-        # Validación básica de RUT chileno
-        if not v.replace('.', '').replace('-', '').isdigit():
-            raise ValueError('RUT debe contener solo números, puntos y guión')
-        return v
+        # Permite RUT con o sin puntos y sin guión
+        rut_limpio = v.replace(".", "").replace("-", "")
 
+        if not rut_limpio[:-1].isdigit():
+            raise ValueError("El RUT debe contener números válidos")
+
+        return v
 class ClienteCreate(ClienteBase):
     pass
 
@@ -49,17 +52,34 @@ class ClienteOut(ClienteBase):
 
 class MedidorBase(BaseModel):
     codigo_medidor: str
-    id_cliente: int
     direccion_suministro: Optional[str] = None
     estado: Optional[str] = "activo"
+
+    # Coordenadas del mapa
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
+
+
 class MedidorCreate(MedidorBase):
-    pass
+    # El frontend enviará el RUT del cliente
+    rut_cliente: str
+
 
 class MedidorUpdate(BaseModel):
-    direccion_suministro: str
-    estado: str
+    direccion_suministro: Optional[str] = None
+    estado: Optional[str] = None
+    
+    # Actualizar ubicación del mapa
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
+
+    # Permitir cambiar el cliente por RUT
+    rut_cliente: Optional[str] = None
+
+
 class MedidorOut(MedidorBase):
     id_medidor: int
+    id_cliente: int  # este se envía desde DB
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

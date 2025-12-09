@@ -1,71 +1,71 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>Medidores</ion-title>
+    <button onclick="window.location.href='/home'" class="nav-link">⬅ Volver</button>
+    
   </ion-toolbar>
 </ion-header>
 
-<div class="page-container">
-  <div class="card">
+<ion-content>
+  <div class="page-container">
 
-    <!-- Título -->
-    <h2 class="text-2xl font-bold mb-4 text-blue-700">⚙️ Medidores</h2>
+    <!-- CARD 1: FORM -->
+    <div class="card">
+      <div *ngIf="mensajeError" class="error-box">⚠️ {{ mensajeError }}</div>
 
-    <!-- Barra de búsqueda -->
-    <div class="flex mb-4 gap-2">
-      <input 
-        placeholder="Buscar por código o cliente..." 
-        class="border p-2 rounded w-full"
-      />
-      <button class="btn-primary">
-        <a href="/nuevo-medidor" class="text-white">+ Nuevo</a>
-      </button>
+      <h2 class="card-title">{{ modoEdicion ? "✏️ Editar Medidor" : "➕ Nuevo Medidor" }}</h2>
+
+      <form (ngSubmit)="guardar()">
+        <label class="label">Código del Medidor *</label>
+        <input class="input" [(ngModel)]="medidor.codigo_medidor" name="codigo_medidor" required placeholder="MED-00123" [readonly]="modoEdicion" />
+
+        <label class="label">RUT del Cliente *</label>
+        <input class="input" [(ngModel)]="medidor.rut_cliente" name="rut_cliente" (blur)="buscarClientePorRut()" required placeholder="12.345.678-9" />
+
+        <label class="label">Dirección de suministro</label>
+        <input class="input" [(ngModel)]="medidor.direccion_suministro" name="direccion_suministro" placeholder="Calle / número" />
+
+        <label class="label">Estado</label>
+        <select class="input" [(ngModel)]="medidor.estado" name="estado">
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+
+        <div class="button-row">
+          <button type="submit" [disabled]="cargando" class="btn-primary">
+            {{ cargando ? "⏳ Guardando..." : (modoEdicion ? "💾 Actualizar" : "➕ Crear") }}
+          </button>
+          <button type="button" class="btn-danger" (click)="cancelar()" [disabled]="cargando">❌ Cancelar</button>
+        </div>
+      </form>
+
+      <div class="note">Los campos marcados con (*) son requeridos.</div>
     </div>
 
-    <!-- Tabla de datos -->
-    <table 
-      class="table-auto w-full bg-white shadow-md rounded-lg"
-      *ngIf="medidores.length > 0; else sinMedidores"
-    >
-      <thead class="bg-blue-600 text-white">
-        <tr>
-          <th class="p-3">Código</th>
-          <th class="p-3">Cliente</th>
-          <th class="p-3">Dirección</th>
-          <th class="p-3">Estado</th>
-          <th class="p-3 text-center">Acciones</th>
-        </tr>
-      </thead>
+    <!-- CARD 2: LIST -->
+    <div class="card card-lista">
+      <h2 class="card-title">Lista de Medidores</h2>
 
-      <tbody>
-        <tr *ngFor="let m of medidores" class="border-b hover:bg-gray-50">
-          <td class="p-3">{{ m.codigo_medidor }}</td>
-          <td class="p-3">{{ m.cliente?.nombre_razon }}</td>
-          <td class="p-3">{{ m.direccion_suministro }}</td>
-          <td class="p-3">{{ m.estado ? 'Activo' : 'Inactivo' }}</td>
-          <td class="p-3 flex justify-center gap-2">
-            <button 
-              (click)="editarMedidor(m.id_medidor)" 
-              class="btn-primary py-1 px-3"
-            >
-              Editar
-            </button>
-            <button 
-              (click)="eliminarMedidor(m.id_medidor)" 
-              class="btn-danger py-1 px-3"
-            >
-              Eliminar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <div *ngIf="cargando" class="muted">Cargando medidores...</div>
+      <div *ngIf="!cargando && medidores.length === 0" class="muted">No hay medidores registrados.</div>
 
-    <!-- Mensaje si no hay medidores -->
-    <ng-template #sinMedidores>
-      <p class="text-gray-500 text-center mt-6">
-        No hay medidores registrados.
-      </p>
-    </ng-template>
-
-  </div>
-</div>
+      <div *ngIf="medidores.length > 0" class="table-wrap">
+        <table class="tabla-clientes">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>RUT Cliente</th>
+              <th>Dirección</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of medidores">
+              <td>{{ m.codigo_medidor }}</td>
+              <td>{{ m.cliente?.rut || m.rut_cliente || '' }}</td>
+              <td>{{ m.direccion_suministro }}</td>
+              <td><span class="estado" [ngClass]="m.estado === 'activo' ? 'activo' : 'inactivo'">{{ m.estado }}</span></td>
+              <td class="td-actions">
+                <button class="btn-primary" (click)="editarMedidor(m)">✏️ Editar</button>
+                <button class="btn-danger" (click)="eliminarMedidor(m.id_medidor)">🗑 Eliminar</button>

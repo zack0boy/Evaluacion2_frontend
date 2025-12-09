@@ -36,6 +36,10 @@ export const routes: Routes = [
   },
   {
     path: 'medidores-service',
-    loadComponent: () => import('./services/medidores-service/medidores-service.page').then( m => m.MedidoresServicePage)
+    loadComponent: () => import('./services/medidores-service/medidores-service').then( m => m.MedidoresServicePage)
+  },
+  {
+    path: 'mapa',
+    loadComponent: () => import('./mapa/mapa.page').then( m => m.MapaPage)
   },
 ];

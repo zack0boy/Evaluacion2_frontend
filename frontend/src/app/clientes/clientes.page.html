@@ -1,189 +1,88 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>Clientes</ion-title>
-    <button onclick="window.location.href='/home'" class="nav-link">volver</button>
+    <button onclick="window.location.href='/home'" class="nav-link">⬅ Volver</button>
+
   </ion-toolbar>
 </ion-header>
 
-<div class="page-container">
-  
-  <!-- CARD 1: FORMULARIO -->
-  <div class="card">
+<ion-content>
+  <div class="page-container">
 
-    <!-- Mensaje de error -->
-    <div *ngIf="mensajeError" class="error-box">
-      ⚠️ {{ mensajeError }}
+    <!-- CARD 1: FORM -->
+    <div class="card">
+      <div *ngIf="mensajeError" class="error-box">⚠️ {{ mensajeError }}</div>
+
+      <h2 class="card-title">{{ modoEdicion ? "✏️ Editar Cliente" : "➕ Nuevo Cliente" }}</h2>
+
+      <form (ngSubmit)="guardar()">
+        <label class="label">RUT *</label>
+        <input class="input" [(ngModel)]="cliente.rut" name="rut" required placeholder="Ej: 12.345.678-9" />
+
+        <label class="label">Nombre / Razón Social *</label>
+        <input class="input" [(ngModel)]="cliente.nombre_razon" name="nombre_razon" required placeholder="Ej: Mi Empresa S.A." />
+
+        <label class="label">Email *</label>
+        <input class="input" [(ngModel)]="cliente.email_contacto" name="email_contacto" type="email" required placeholder="info@empresa.com" />
+
+        <label class="label">Teléfono</label>
+        <input class="input" [(ngModel)]="cliente.telefono" name="telefono" placeholder="+56912345678" />
+
+        <label class="label">Dirección *</label>
+        <input class="input" [(ngModel)]="cliente.direccion_facturacion" name="direccion_facturacion" required placeholder="Calle 123" />
+
+        <label class="label">Ciudad</label>
+        <input class="input" [(ngModel)]="cliente.ciudad" name="ciudad" placeholder="Santiago" />
+
+        <div class="button-row">
+          <button type="submit" [disabled]="cargando" class="btn-primary">
+            {{ cargando ? "⏳ Guardando..." : (modoEdicion ? "💾 Actualizar" : "➕ Crear") }}
+          </button>
+          <button type="button" class="btn-danger" (click)="cancelar()" [disabled]="cargando">❌ Cancelar</button>
+        </div>
+      </form>
+
+      <div class="note">Los campos marcados con (*) son requeridos.</div>
     </div>
 
-    <!-- Formulario -->
-    <form (ngSubmit)="guardar()">
+    <!-- CARD 2: LIST -->
+    <div class="card card-lista">
+      <h2 class="card-title">Lista de Clientes</h2>
 
-      <!-- RUT -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-2">RUT *</label>
-        <input 
-          [(ngModel)]="cliente.rut" 
-          name="rut" 
-          type="text"
-          placeholder="Ej: 12345678-9"
-          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
-          required
-        />
+      <div *ngIf="cargando" class="muted">Cargando clientes...</div>
+      <div *ngIf="!cargando && clientes.length === 0" class="muted">No hay clientes registrados.</div>
+
+      <div *ngIf="clientes.length > 0" class="table-wrap">
+        <table class="tabla-clientes">
+          <thead>
+            <tr>
+              <th>RUT</th>
+              <th>Nombre / Razón</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Dirección</th>
+              <th>Ciudad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of clientes">
+              <td>{{ c.rut }}</td>
+              <td>{{ c.nombre_razon }}</td>
+              <td>{{ c.email_contacto }}</td>
+              <td>{{ c.telefono }}</td>
+              <td>{{ c.direccion_facturacion }}</td>
+              <td>{{ c.ciudad }}</td>
+              <td class="td-actions">
+                <button class="btn-primary" (click)="editarCliente(c)">✏️ Editar</button>
+                <button class="btn-danger" (click)="eliminarCliente(c.id_cliente || c.id)">🗑 Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- Nombre o Razón Social -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-2">Nombre o Razón Social *</label>
-        <input 
-          [(ngModel)]="cliente.nombre_razon" 
-          name="nombre_razon" 
-          type="text"
-          placeholder="Ej: Mi Empresa S.A."
-          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
-          required
-        />
-      </div>
-
-      <!-- Email -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-2">Email *</label>
-        <input 
-          [(ngModel)]="cliente.email_contacto" 
-          name="email_contacto" 
-          type="email"
-          placeholder="Ej: info@empresa.com"
-          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
-          required
-        />
-      </div>
-
-      <!-- Teléfono -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-2">Teléfono</label>
-        <input 
-          [(ngModel)]="cliente.telefono" 
-          name="telefono" 
-          type="text"
-          placeholder="Ej: +56912345678"
-          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
-        />
-      </div>
-
-      <!-- Dirección -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-2">Dirección *</label>
-        <input 
-          [(ngModel)]="cliente.direccion_facturacion" 
-          name="direccion_facturacion" 
-          type="text"
-          placeholder="Ej: Calle Principal 123"
-          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
-          required
-        />
-      </div>
-
-      <!-- Ciudad -->
-      <div class="mb-6">
-        <label class="block text-sm font-semibold mb-2">Ciudad</label>
-        <input 
-          [(ngModel)]="cliente.ciudad" 
-          name="ciudad" 
-          type="text"
-          placeholder="Ej: Santiago"
-          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
-        />
-      </div>
-
-      <!-- Botones -->
-      <div class="flex gap-4">
-        <button 
-          type="submit"
-          [disabled]="cargando"
-          class="btn-primary"
-        >
-          {{ cargando ? '⏳ Guardando...' : (modoEdicion ? '💾 Actualizar' : '➕ Crear') }}
-        </button>
-
-        <button 
-          type="button"
-          class="btn-danger"
-          [disabled]="cargando"
-          (click)="cancelar()"
-        >
-          ❌ Cancelar
-        </button>
-      </div>
-
-    </form>
-
-    <!-- Información útil -->
-    <div class="mt-8 p-4 bg-blue-50 rounded border-l-4 border-blue-500">
-      <p class="text-sm text-gray-700">
-        <strong>Nota:</strong> Los campos marcados con (*) son requeridos.
-      </p>
     </div>
 
   </div>
-
-  <!-- CARD 2: LISTA DE CLIENTES -->
-  <div class="card card-lista">
-
-    <!-- Título lista -->
-    <h2 class="text-lg font-semibold mb-4">Lista de clientes</h2>
-
-    <!-- Estado de carga -->
-    <div *ngIf="cargando" class="text-sm text-gray-500 mb-2">
-      Cargando clientes...
-    </div>
-
-    <!-- Sin datos -->
-    <div *ngIf="!cargando && clientes.length === 0" class="text-sm text-gray-500">
-      No hay clientes registrados.
-    </div>
-
-    <!-- Tabla de clientes -->
-    <div *ngIf="clientes.length > 0" class="overflow-x-auto">
-      <table class="tabla-clientes border border-gray-200 text-sm">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="p-2 border border-gray-200 text-left">RUT</th>
-            <th class="p-2 border border-gray-200 text-left">Nombre / Razón</th>
-            <th class="p-2 border border-gray-200 text-left">Email</th>
-            <th class="p-2 border border-gray-200 text-left">Teléfono</th>
-            <th class="p-2 border border-gray-200 text-left">Dirección</th>
-            <th class="p-2 border border-gray-200 text-left">Ciudad</th>
-            <th class="p-2 border border-gray-200 text-left">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let c of clientes" class="hover:bg-gray-50">
-            <td class="p-2 border border-gray-200">{{ c.rut }}</td>
-            <td class="p-2 border border-gray-200">{{ c.nombre_razon }}</td>
-            <td class="p-2 border border-gray-200">{{ c.email_contacto }}</td>
-            <td class="p-2 border border-gray-200">{{ c.telefono }}</td>
-            <td class="p-2 border border-gray-200">{{ c.direccion_facturacion }}</td>
-            <td class="p-2 border border-gray-200">{{ c.ciudad }}</td>
-            <td class="p-2 border border-gray-200">
-              <button 
-                type="button" 
-                class="btn-primary mr-2"
-                (click)="editarCliente(c)"
-              >
-                ✏️ Editar
-              </button>
-              <button 
-                type="button" 
-                class="btn-danger"
-                (click)="eliminarCliente(c.id_cliente || c.id)"
-              >
-                🗑 Eliminar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-
-</div>
+</ion-content>

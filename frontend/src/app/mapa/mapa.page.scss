@@ -1,0 +1,81 @@
+ion-content {
+  --background: #f3f7ff;
+}
+
+/* CARD SUPERIOR */
+.top-card {
+  background: white;
+  margin: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  border-left: 4px solid #1e70ff;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.top-card h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+}
+
+/* BOTONES BONITOS */
+.btn-primary {
+  background: #1e70ff;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  background: #1656cc;
+}
+
+.btn-secondary {
+  background: #e5e5e5;
+  color: #333;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #d4d4d4;
+}
+
+/* MAPA */
+#map {
+  height: calc(100vh - 180px);
+  margin: 12px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  border: 2px solid #d7e3ff;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  #map {
+    height: calc(100vh - 210px);
+  }
+
+  .controls {
+    flex-direction: column;
+  }
+}

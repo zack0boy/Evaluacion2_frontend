@@ -94,60 +94,26 @@ def eliminar_cliente(cliente_id: int, db: Session = Depends(get_db)):
 # =======================
 # MEDIDORES (CRUD COMPLETO)
 # =======================
+# =======================
+# MEDIDORES (CRUD COMPLETO)
+# =======================
 
-@app.post("/api/medidores/", response_model=schemas.MedidorOut, tags=["Medidores"])
-def crear_medidor(medidor: schemas.MedidorCreate, db: Session = Depends(get_db)):
-    """
-    Crear un nuevo medidor asociado a un cliente
-    """
-    try:
-        return crud_medidores.create_medidor(db, medidor)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+# RUTAS ESPECÍFICAS PRIMERO
+@app.get("/api/medidores/cliente/{cliente_id}", response_model=List[schemas.MedidorOut], tags=["Medidores"])
+def listar_medidores_cliente(cliente_id: int, db: Session = Depends(get_db)):
+    return crud_medidores.get_medidores_por_cliente(db, cliente_id)
 
+# AHORA LAS GENERALES
 @app.get("/api/medidores/", response_model=List[schemas.MedidorOut], tags=["Medidores"])
 def listar_medidores(db: Session = Depends(get_db)):
-    """
-    Listar todos los medidores
-    """
     return crud_medidores.list_medidores(db)
 
 @app.get("/api/medidores/{medidor_id}", response_model=schemas.MedidorOut, tags=["Medidores"])
 def obtener_medidor(medidor_id: int, db: Session = Depends(get_db)):
-    """
-    Obtener un medidor por ID
-    """
     medidor = crud_medidores.get_medidor(db, medidor_id)
     if not medidor:
         raise HTTPException(status_code=404, detail="Medidor no encontrado")
     return medidor
-
-@app.put("/api/medidores/{medidor_id}", response_model=schemas.MedidorOut, tags=["Medidores"])
-def actualizar_medidor(medidor_id: int, medidor: schemas.MedidorUpdate, db: Session = Depends(get_db)):
-    """
-    Actualizar un medidor existente
-    """
-    updated = crud_medidores.update_medidor(db, medidor_id, medidor)
-    if not updated:
-        raise HTTPException(status_code=404, detail="Medidor no encontrado")
-    return updated
-
-@app.delete("/api/medidores/{medidor_id}", tags=["Medidores"])
-def eliminar_medidor(medidor_id: int, db: Session = Depends(get_db)):
-    """
-    Eliminar un medidor
-    """
-    success = crud_medidores.delete_medidor(db, medidor_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Medidor no encontrado")
-    return {"message": "Medidor eliminado correctamente"}
-
-@app.get("/api/medidores/cliente/{cliente_id}", response_model=List[schemas.MedidorOut], tags=["Medidores"])
-def listar_medidores_cliente(cliente_id: int, db: Session = Depends(get_db)):
-    """
-    Listar todos los medidores de un cliente específico
-    """
-    return crud_medidores.get_medidores_por_cliente(db, cliente_id)
 
 # =======================
 # LECTURAS (crear/listar por medidor/mes)

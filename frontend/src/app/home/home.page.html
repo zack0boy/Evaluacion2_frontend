@@ -1,21 +1,43 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
+<ion-header>
+  <ion-toolbar color="primary">
     <ion-title>Panel de Gestión CGE</ion-title>
-  
-
-  <nav class="nav">
-    <button onclick="window.location.href='/clientes'" class="nav-link">👤 Clientes</button>
-    <button onclick="window.location.href='/boletas'" class="nav-link">🧾 Boletas</button>
-    <button onclick="window.location.href='/lecturas'" class="nav-link">📊 Lecturas</button>
-    <button onclick="window.location.href='/medidores'" class="nav-link">⚙️ Medidores</button>
-    <button onclick="window.location.href='/registros'" class="nav-link">📝 Registros</button>
-  </nav>
-</ion-toolbar>
+  </ion-toolbar>
 </ion-header>
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large"></ion-title>
-    </ion-toolbar>
-  </ion-header>
+
+<ion-content class="panel-content">
+
+  <div class="menu-grid">
+
+    <ion-button fill="outline" class="menu-btn" onclick="window.location.href='/clientes'">
+      <ion-icon slot="start" name="people-outline"></ion-icon>
+      Clientes
+    </ion-button>
+
+    <ion-button fill="outline" class="menu-btn" onclick="window.location.href='/boletas'">
+      <ion-icon slot="start" name="receipt-outline"></ion-icon>
+      Boletas
+    </ion-button>
+
+    <ion-button fill="outline" class="menu-btn" onclick="window.location.href='/lecturas'">
+      <ion-icon slot="start" name="book-outline"></ion-icon>
+      Lecturas
+    </ion-button>
+
+    <ion-button fill="outline" class="menu-btn" onclick="window.location.href='/medidores'">    
+    <ion-icon slot="start" name="speedometer-outline"></ion-icon>
+      Medidores
+    </ion-button>
+
+    <ion-button fill="outline" class="menu-btn" onclick="window.location.href='/registros'">
+    <ion-icon slot="start" name="document-text-outline"></ion-icon>
+      Registros
+    </ion-button>
+
+    <ion-button fill="outline" class="menu-btn" onclick="window.location.href='/mapa'">
+    <ion-icon slot="start" name="map-outline"></ion-icon>
+      Mapa
+    </ion-button>
+
+  </div>
+
 </ion-content>
