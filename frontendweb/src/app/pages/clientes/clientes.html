@@ -1,31 +1,17 @@
-<div class="p-6 bg-gray-100 min-h-screen">
-  <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
-    
-    <h2 class="text-3xl font-bold mb-6 text-blue-700">
-      {{ modoEdicion ? '✏️ Editar Cliente' : '➕ Crear Nuevo Cliente' }}
-    </h2>
+<div class="p-4">
+  <h2>Gestión de Clientes</h2>
 
-    <!-- Mensaje de error -->
-    <div *ngIf="mensajeError" class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
-      <p class="font-semibold">⚠️ {{ mensajeError }}</p>
-    </div>
+  <input type="text" [(ngModel)]="filtro" placeholder="Filtrar clientes..." class="form-control mb-3">
 
-    <!-- Formulario -->
-    <form (ngSubmit)="guardar()">
-      
-      <!-- RUT -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-2">RUT *</label>
-        <input 
-          [(ngModel)]="cliente.rut" 
-          name="rut" 
-          type="text"
-          placeholder="Ej: 12345678-9"
-          class="border border-gray-300 p-3 rounded w-full focus:outline-none focus:border-blue-500"
-          required
-        />
-      </div>
+  <form (ngSubmit)="modoEdicion ? guardarCliente(clienteActual.id) : crearCliente()">
+    <input type="text" [(ngModel)]="clienteActual.nombre" name="nombre" placeholder="Nombre" required>
+    <input type="email" [(ngModel)]="clienteActual.email" name="email" placeholder="Email" required>
+    <input type="text" [(ngModel)]="clienteActual.rut" name="rut" placeholder="RUT" required>
+    <button type="submit">{{ modoEdicion ? 'Guardar Cambios' : 'Agregar Cliente' }}</button>
+    <button type="button" (click)="limpiarFormulario()" *ngIf="modoEdicion">Cancelar</button>
+  </form>
 
+<<<<<<< HEAD:frontendweb/src/app/pages/clientes/clientes.html
       <!-- Nombre o Razón Social -->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-2">Nombre o Razón Social *</label>
@@ -129,3 +115,27 @@
 
   </div>
 </div>
+=======
+  <table class="table mt-4">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>RUT</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let c of filtrarClientes()">
+        <td>{{ c.nombre }}</td>
+        <td>{{ c.email }}</td>
+        <td>{{ c.rut }}</td>
+        <td>
+          <button (click)="editarCliente(c.id)">Editar</button>
+          <button (click)="eliminarCliente(c.id)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+>>>>>>> parent of c88f42e2 (avances front):frontend/cgefront/src/app/clientes/cliente-form/cliente-form.component.html
